@@ -536,9 +536,8 @@ public partial class MapViewModel : BaseViewModel
 
         MauiProgram.Log($"[MapViewModel] EditPersonDetails: {SelectedPerson.Name}");
         
-        // Navigate to ManagementPage with person ID
-        // TODO: Implement navigation with parameter in Week 3 Day 19-21
-        await Shell.Current.GoToAsync($"//ManagementPage?personId={SelectedPerson.Id}");
+        // Navigate directly to edit page with person ID
+        await Shell.Current.GoToAsync($"PersonEditPage?PersonId={SelectedPerson.Id}");
         
         // Close panel after navigation
         CloseDetailPanel();

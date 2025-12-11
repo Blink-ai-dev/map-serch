@@ -1,7 +1,10 @@
 #nullable enable
 
 using LmpLink.MAUI.ViewModels.Base;
+using LmpLink.MAUI.Models;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.Linq;
 
 namespace LmpLink.MAUI.ViewModels;
 
@@ -16,13 +19,16 @@ public partial class ManagementViewModel : BaseViewModel
     // --- Observable Properties ---
 
     [ObservableProperty]
-    private ObservableCollection<Person> _allPersons = new();
+    private ObservableCollection<SelectablePerson> _allPersons = new();
 
     [ObservableProperty]
-    private ObservableCollection<Person> _filteredPersons = new();
+    private ObservableCollection<SelectablePerson> _filteredPersons = new();
 
     [ObservableProperty]
-    private Person? _selectedPerson;
+    private SelectablePerson? _selectedPerson;
+
+    [ObservableProperty]
+    private ObservableCollection<SelectablePerson> _selectedPersons = new();
 
     [ObservableProperty]
     private string _searchText = string.Empty;
@@ -39,6 +45,8 @@ public partial class ManagementViewModel : BaseViewModel
         _mockDataService = mockDataService;
         _supabaseService = supabaseService;
         MauiProgram.Log("[ManagementViewModel] Constructor called");
+
+        SelectedPersons.CollectionChanged += OnSelectedPersonsChanged;
     }
 
     // --- Commands ---
@@ -74,11 +82,11 @@ public partial class ManagementViewModel : BaseViewModel
             AllPersons.Clear();
             foreach (var user in users)
             {
-                AllPersons.Add(user);
+                AllPersons.Add(new SelectablePerson(user));
             }
             foreach (var assistant in assistants)
             {
-                AllPersons.Add(assistant);
+                AllPersons.Add(new SelectablePerson(assistant));
             }
 
             ApplyFilter();
@@ -122,28 +130,70 @@ public partial class ManagementViewModel : BaseViewModel
                 (p.Address != null && p.Address.ToLower().Contains(search)));
         }
 
+        // Reset selection when filtering to keep UX deterministic.
+        foreach (var p in AllPersons)
+        {
+            p.IsSelected = false;
+        }
+        SelectedPersons.Clear();
+        SelectedPerson = null;
+
         FilteredPersons.Clear();
         foreach (var person in filtered)
         {
             FilteredPersons.Add(person);
         }
-
         MauiProgram.Log($"[ManagementViewModel] FilteredPersons count: {FilteredPersons.Count}");
     }
 
     /// <summary>
-    /// Select a person (for editing or deletion).
+    /// Select a single person via row tap (clears other selections).
     /// </summary>
     [RelayCommand]
-    private void SelectPerson(Person? person)
+    private void SelectRow(SelectablePerson? person)
     {
         if (person == null)
         {
             return;
         }
 
-        MauiProgram.Log($"[ManagementViewModel] SelectPerson: {person.Name}");
+        ClearSelections();
+        person.IsSelected = true;
+        SelectedPersons.Add(person);
         SelectedPerson = person;
+        UpdateSelectionState();
+    }
+
+    /// <summary>
+    /// Toggle selection for a person (checkbox or row tap).
+    /// </summary>
+    [RelayCommand]
+    private void ToggleSelection(SelectablePerson? person)
+    {
+        if (person == null)
+        {
+            return;
+        }
+
+        person.IsSelected = !person.IsSelected;
+
+        var existing = SelectedPersons.FirstOrDefault(p => p.Id == person.Id);
+        if (person.IsSelected)
+        {
+            if (existing == null)
+            {
+                SelectedPersons.Add(person);
+            }
+        }
+        else
+        {
+            if (existing != null)
+            {
+                SelectedPersons.Remove(existing);
+            }
+        }
+
+        UpdateSelectionState();
     }
 
     /// <summary>
@@ -157,40 +207,51 @@ public partial class ManagementViewModel : BaseViewModel
     }
 
     /// <summary>
-    /// Edit the selected person.
+    /// Edit the single selected person.
     /// </summary>
     [RelayCommand]
     private async Task EditPersonAsync()
     {
-        if (SelectedPerson == null)
+        var target = SelectedPersons.Count == 1 ? SelectedPersons.First() : null;
+        if (target == null)
         {
-            await Shell.Current.DisplayAlertAsync("오류", "편집할 사람을 선택하세요.", "확인");
+            await Shell.Current.DisplayAlertAsync("오류", "편집할 대상을 하나만 선택하세요.", "확인");
             return;
         }
 
-        MauiProgram.Log($"[ManagementViewModel] EditPersonAsync: {SelectedPerson.Name}");
-        
-        // Navigate with query parameter
-        await Shell.Current.GoToAsync($"PersonEditPage?PersonId={SelectedPerson.Id}");
+        MauiProgram.Log($"[ManagementViewModel] EditPersonAsync: {target.Name}");
+        await Shell.Current.GoToAsync($"PersonEditPage?PersonId={target.Id}");
     }
 
     /// <summary>
-    /// Delete the selected person.
+    /// Delete selected persons (single or multiple).
     /// </summary>
     [RelayCommand]
-    private async Task DeletePersonAsync()
+    private async Task DeleteSelectedAsync()
     {
-        if (SelectedPerson == null)
+        if (SelectedPersons.Count == 0)
         {
-            await Shell.Current.DisplayAlertAsync("오류", "삭제할 사람을 선택하세요.", "확인");
+            await Shell.Current.DisplayAlertAsync("오류", "삭제할 대상을 선택하세요.", "확인");
             return;
         }
 
-        MauiProgram.Log($"[ManagementViewModel] DeletePersonAsync: {SelectedPerson.Name}");
+        if (_supabaseService == null)
+        {
+            await Shell.Current.DisplayAlertAsync("오류", "삭제 서비스를 사용할 수 없습니다.", "확인");
+            return;
+        }
+
+        // 스냅샷을 만들어 중간에 컬렉션이 변경되어도 안전하게 처리
+        var targets = SelectedPersons.ToList();
+        var targetCount = SelectedPersons.Count;
+        var title = targetCount == 1 ? "삭제 확인" : "일괄 삭제 확인";
+        var message = targetCount == 1
+            ? $"{targets.First().Name}님을 삭제하시겠습니까?"
+            : $"{targetCount}명을 삭제하시겠습니까?";
 
         var confirm = await Shell.Current.DisplayAlertAsync(
-            "삭제 확인",
-            $"{SelectedPerson.Name}님을 삭제하시겠습니까?",
+            title,
+            message,
             "삭제",
             "취소");
 
@@ -199,16 +260,25 @@ public partial class ManagementViewModel : BaseViewModel
             return;
         }
 
+        var ids = targets.Select(p => p.Id).ToList();
+
         await ExecuteAsync(async () =>
         {
             try
             {
-                await _supabaseService.DeletePersonAsync(SelectedPerson.Id);
-                AllPersons.Remove(SelectedPerson);
+                foreach (var id in ids)
+                {
+                    await _supabaseService.DeletePersonAsync(id);
+                }
+
+                var remaining = AllPersons.Where(p => !ids.Contains(p.Id)).ToList();
+                AllPersons = new ObservableCollection<SelectablePerson>(remaining);
+                SelectedPersons.Clear();
                 ApplyFilter();
-                SelectedPerson = null;
-                await Shell.Current.DisplayAlertAsync("성공", "삭제되었습니다.", "확인");
-                MauiProgram.Log($"[ManagementViewModel] Person deleted: {SelectedPerson?.Name}");
+
+                var successMessage = targetCount == 1 ? "삭제되었습니다." : "일괄 삭제되었습니다.";
+                await Shell.Current.DisplayAlertAsync("성공", successMessage, "확인");
+                MauiProgram.Log($"[ManagementViewModel] Deleted {targetCount} person(s)");
             }
             catch (Exception ex)
             {
@@ -216,6 +286,31 @@ public partial class ManagementViewModel : BaseViewModel
                 await Shell.Current.DisplayAlertAsync("오류", $"삭제 실패: {ex.Message}", "확인");
             }
         });
+    }
+
+    private void OnSelectedPersonsChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        UpdateSelectionState();
+    }
+
+    private void UpdateSelectionState()
+    {
+        SelectedPerson = SelectedPersons.Count == 1 ? SelectedPersons.First() : null;
+        OnPropertyChanged(nameof(HasSelection));
+        OnPropertyChanged(nameof(HasSingleSelection));
+    }
+
+    public bool HasSelection => SelectedPersons.Count > 0;
+    public bool HasSingleSelection => SelectedPersons.Count == 1;
+
+    private void ClearSelections()
+    {
+        foreach (var p in AllPersons)
+        {
+            p.IsSelected = false;
+        }
+        SelectedPersons.Clear();
+        SelectedPerson = null;
     }
 }
 
