@@ -1,0 +1,23 @@
+# MAUI Run Guidance (Windows)
+
+1) Kill running instance to avoid file lock:
+   ```
+   taskkill /IM LmpLink.MAUI.exe /F
+   ```
+
+2) Build:
+   ```
+   cd C:\ai\projects\map-demo
+   dotnet build src\LmpLink.MAUI\LmpLink.MAUI.csproj -f net10.0-windows10.0.19041.0
+   ```
+
+3) Run:
+   ```
+   cd C:\ai\projects\map-demo\src\LmpLink.MAUI\bin\Debug\net10.0-windows10.0.19041.0\win-x64
+   .\LmpLink.MAUI.exe
+   ```
+
+Shortcut:
+```
+powershell -ExecutionPolicy Bypass -File ".\scripts\maui-build-run.ps1"
+```
