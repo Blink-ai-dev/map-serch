@@ -3,12 +3,17 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:LmpLink.MAUI.ViewModels"
              xmlns:models="clr-namespace:LmpLink.MAUI.Models"
+             xmlns:controls="clr-namespace:LmpLink.MAUI.Views.Controls"
              x:Class="LmpLink.MAUI.Views.Pages.ManagementPage"
              x:DataType="vm:ManagementViewModel"
              Title="관리"
+             Shell.NavBarIsVisible="False"
              BackgroundColor="{StaticResource BackgroundDeepNavy}">
 
-    <Grid RowDefinitions="Auto,Auto,*" Padding="20">
+    <Grid RowDefinitions="Auto,*">
+        <controls:AppTabMenu Grid.Row="0" />
+
+        <Grid Grid.Row="1" RowDefinitions="Auto,Auto,*" Padding="20">
         
         <!-- Header -->
         <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,15">
@@ -197,6 +202,7 @@
 
         </Grid>
 
+        </Grid>
     </Grid>
 
 </ContentPage>

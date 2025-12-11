@@ -2,13 +2,18 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:LmpLink.MAUI.ViewModels"
+             xmlns:controls="clr-namespace:LmpLink.MAUI.Views.Controls"
              x:Class="LmpLink.MAUI.Views.Pages.SettingsPage"
              x:DataType="vm:SettingsViewModel"
              Title="설정"
+             Shell.NavBarIsVisible="False"
              BackgroundColor="{StaticResource BackgroundDeepNavy}">
 
-    <ScrollView>
-        <Grid Padding="20" RowDefinitions="Auto,Auto,Auto,Auto,Auto" ColumnDefinitions="*,*" ColumnSpacing="20" RowSpacing="20">
+    <Grid RowDefinitions="Auto,*">
+        <controls:AppTabMenu Grid.Row="0" />
+
+        <ScrollView Grid.Row="1">
+            <Grid Padding="20" RowDefinitions="Auto,Auto,Auto,Auto,Auto" ColumnDefinitions="*,*" ColumnSpacing="20" RowSpacing="20">
             
             <!-- Title (Full Width) -->
             <Label 
@@ -731,7 +736,8 @@
                 </VerticalStackLayout>
             </Frame>
 
-        </Grid>
-    </ScrollView>
+            </Grid>
+        </ScrollView>
+    </Grid>
 
 </ContentPage>

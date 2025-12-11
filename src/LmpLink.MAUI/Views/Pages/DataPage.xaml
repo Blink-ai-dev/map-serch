@@ -2,13 +2,18 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:LmpLink.MAUI.ViewModels"
+             xmlns:controls="clr-namespace:LmpLink.MAUI.Views.Controls"
              x:Class="LmpLink.MAUI.Views.Pages.DataPage"
              x:DataType="vm:DataViewModel"
              Title="데이터"
+             Shell.NavBarIsVisible="False"
              BackgroundColor="{StaticResource BackgroundDeepNavy}">
 
-    <ScrollView>
-        <VerticalStackLayout Padding="20" Spacing="20">
+    <Grid RowDefinitions="Auto,*">
+        <controls:AppTabMenu Grid.Row="0" />
+
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Padding="20" Spacing="20">
             
             <!-- Title -->
             <Label 
@@ -136,8 +141,9 @@
                 HorizontalOptions="Center"
                 Margin="20" />
 
-        </VerticalStackLayout>
-    </ScrollView>
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
 
 </ContentPage>
 

@@ -4,12 +4,17 @@
              xmlns:vm="clr-namespace:LmpLink.MAUI.ViewModels"
              xmlns:models="clr-namespace:LmpLink.MAUI.Models"
              xmlns:pages="clr-namespace:LmpLink.MAUI.Views.Pages"
+             xmlns:controls="clr-namespace:LmpLink.MAUI.Views.Controls"
              x:Class="LmpLink.MAUI.Views.Pages.MapPage"
              x:DataType="vm:MapViewModel"
              Title="지도"
+             Shell.NavBarIsVisible="False"
              BackgroundColor="{StaticResource BackgroundDeepNavy}">
 
-    <Grid ColumnDefinitions="3*,7*">
+    <Grid RowDefinitions="Auto,*">
+        <controls:AppTabMenu Grid.Row="0" />
+
+        <Grid Grid.Row="1" ColumnDefinitions="3*,7*">
         
         <!-- Left Panel (30%): User List & Controls -->
         <Grid Grid.Column="0" RowDefinitions="Auto,Auto,Auto,Auto,Auto,*" Padding="10" BackgroundColor="{StaticResource SurfaceDarkGray}">
@@ -466,6 +471,7 @@
                 VerticalOptions="Center" />
         </Grid>
 
+        </Grid>
     </Grid>
 
 </ContentPage>
