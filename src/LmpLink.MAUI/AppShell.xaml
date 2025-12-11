@@ -4,7 +4,106 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:pages="clr-namespace:LmpLink.MAUI.Views.Pages"
-    Shell.FlyoutBehavior="Disabled">
+    Shell.FlyoutBehavior="Disabled"
+    Shell.NavBarIsVisible="True"
+    Title="LMP-Link MVP">
+
+    <!-- Title + scale controls + tabs -->
+    <Shell.TitleView>
+        <Grid RowDefinitions="Auto,Auto"
+              ColumnDefinitions="Auto,*,Auto"
+              HeightRequest="{DynamicResource TitleBarHeight}"
+              Padding="{DynamicResource TitleBarPadding}">
+            <!-- Title -->
+            <Label Grid.Row="0" Grid.Column="0"
+                   Text="LMP-Link MVP"
+                   FontSize="{DynamicResource TitleFontSize}"
+                   TextColor="{StaticResource TextWhite}"
+                   VerticalOptions="Center" />
+
+            <!-- Scale controls -->
+            <Grid Grid.Row="0" Grid.Column="2" ColumnDefinitions="Auto,Auto,Auto,Auto" ColumnSpacing="6" VerticalOptions="Center" HorizontalOptions="End">
+                <Button Grid.Column="0"
+                        Text="+"
+                        BackgroundColor="{StaticResource SurfaceDarkNavy}"
+                        TextColor="{StaticResource TextWhite}"
+                        FontAttributes="Bold"
+                        FontSize="{DynamicResource ButtonFontSize}"
+                        WidthRequest="{DynamicResource ButtonHeight}"
+                        HeightRequest="{DynamicResource ButtonHeight}"
+                        CornerRadius="18"
+                        Padding="0"
+                        Clicked="OnScaleUpClicked" />
+                <Label Grid.Column="1"
+                       x:Name="ScaleLabel"
+                       Text="100%"
+                       FontSize="{DynamicResource ButtonFontSize}"
+                       TextColor="{StaticResource TextLightGray}"
+                       VerticalOptions="Center"
+                       HorizontalOptions="Center" />
+                <Button Grid.Column="2"
+                        Text="−"
+                        BackgroundColor="{StaticResource SurfaceDarkNavy}"
+                        TextColor="{StaticResource TextWhite}"
+                        FontAttributes="Bold"
+                        FontSize="{DynamicResource ButtonFontSize}"
+                        WidthRequest="{DynamicResource ButtonHeight}"
+                        HeightRequest="{DynamicResource ButtonHeight}"
+                        CornerRadius="18"
+                        Padding="0"
+                        Clicked="OnScaleDownClicked" />
+                <Button Grid.Column="3"
+                        Text="초기화"
+                        BackgroundColor="{StaticResource SurfaceDarkNavy}"
+                        TextColor="{StaticResource AccentSecondary}"
+                        FontSize="{DynamicResource ButtonFontSize}"
+                        HeightRequest="{DynamicResource ButtonHeight}"
+                        Padding="10,0"
+                        CornerRadius="18"
+                        Clicked="OnScaleResetClicked" />
+            </Grid>
+
+            <!-- Custom tab buttons -->
+            <HorizontalStackLayout Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3"
+                                   Spacing="12"
+                                   Padding="{DynamicResource TabPadding}"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center">
+                <Button Text="지도"
+                        FontSize="{DynamicResource TabFontSize}"
+                        HeightRequest="{DynamicResource TabHeight}"
+                        Padding="{DynamicResource TabPadding}"
+                        BackgroundColor="{StaticResource SurfaceDarkNavy}"
+                        TextColor="{StaticResource TextWhite}"
+                        CornerRadius="12"
+                        Clicked="OnTabMapClicked" />
+                <Button Text="관리"
+                        FontSize="{DynamicResource TabFontSize}"
+                        HeightRequest="{DynamicResource TabHeight}"
+                        Padding="{DynamicResource TabPadding}"
+                        BackgroundColor="{StaticResource SurfaceDarkNavy}"
+                        TextColor="{StaticResource TextWhite}"
+                        CornerRadius="12"
+                        Clicked="OnTabManagementClicked" />
+                <Button Text="데이터"
+                        FontSize="{DynamicResource TabFontSize}"
+                        HeightRequest="{DynamicResource TabHeight}"
+                        Padding="{DynamicResource TabPadding}"
+                        BackgroundColor="{StaticResource SurfaceDarkNavy}"
+                        TextColor="{StaticResource TextWhite}"
+                        CornerRadius="12"
+                        Clicked="OnTabDataClicked" />
+                <Button Text="설정"
+                        FontSize="{DynamicResource TabFontSize}"
+                        HeightRequest="{DynamicResource TabHeight}"
+                        Padding="{DynamicResource TabPadding}"
+                        BackgroundColor="{StaticResource SurfaceDarkNavy}"
+                        TextColor="{StaticResource TextWhite}"
+                        CornerRadius="12"
+                        Clicked="OnTabSettingsClicked" />
+            </HorizontalStackLayout>
+        </Grid>
+    </Shell.TitleView>
 
     <TabBar>
         <ShellContent

@@ -14,6 +14,7 @@
             <Label 
                 Text="📥 데이터 관리"
                 Style="{StaticResource Heading1}"
+                FontSize="{DynamicResource TitleFontSize}"
                 TextColor="{StaticResource PrimaryCTA}" />
 
             <!-- Excel Export -->
@@ -33,7 +34,9 @@
                         BackgroundColor="{StaticResource AccentSecondary}"
                         TextColor="{StaticResource TextWhite}"
                         CornerRadius="8"
-                        Padding="15,10" />
+                        Padding="15,10"
+                        FontSize="{DynamicResource ButtonFontSize}"
+                        HeightRequest="{DynamicResource ButtonHeight}" />
                     
                     <!-- Export Status -->
                     <Label 
@@ -67,7 +70,9 @@
                         BackgroundColor="{StaticResource AccentSecondary}"
                         TextColor="{StaticResource TextWhite}"
                         CornerRadius="8"
-                        Padding="15,10" />
+                        Padding="15,10"
+                        FontSize="{DynamicResource ButtonFontSize}"
+                        HeightRequest="{DynamicResource ButtonHeight}" />
                     
                     <!-- Import Status -->
                     <Label 
@@ -115,7 +120,9 @@
                         BackgroundColor="{StaticResource PrimaryCTA}"
                         TextColor="{StaticResource TextWhite}"
                         CornerRadius="8"
-                        Padding="15,10" />
+                        Padding="15,10"
+                        FontSize="{DynamicResource ButtonFontSize}"
+                        HeightRequest="{DynamicResource ButtonHeight}" />
                 </VerticalStackLayout>
             </Frame>
 

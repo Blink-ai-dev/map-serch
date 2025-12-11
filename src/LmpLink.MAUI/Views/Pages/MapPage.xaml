@@ -19,6 +19,7 @@
                 Grid.Row="0"
                 Text="LMP-Link MVP"
                 Style="{StaticResource Heading1}"
+                FontSize="{DynamicResource TitleFontSize}"
                 TextColor="{StaticResource PrimaryCTA}"
                 Margin="0,10,0,10" />
 
@@ -30,7 +31,8 @@
                     Command="{Binding ToggleCenterModeCommand}"
                     BackgroundColor="{Binding CurrentCenterMode, Converter={StaticResource CenterModeToColorConverter}, ConverterParameter=User}"
                     TextColor="White"
-                    FontSize="14"
+                    FontSize="{DynamicResource ButtonFontSize}"
+                    HeightRequest="{DynamicResource ButtonHeight}"
                     Padding="10,8" />
                 <Button 
                     Grid.Column="1"
@@ -38,7 +40,8 @@
                     Command="{Binding ToggleCenterModeCommand}"
                     BackgroundColor="{Binding CurrentCenterMode, Converter={StaticResource CenterModeToColorConverter}, ConverterParameter=Assistant}"
                     TextColor="White"
-                    FontSize="14"
+                    FontSize="{DynamicResource ButtonFontSize}"
+                    HeightRequest="{DynamicResource ButtonHeight}"
                     Padding="10,8" />
             </Grid>
 
@@ -56,8 +59,9 @@
                         Command="{Binding ChangeRadiusCommand}"
                         BackgroundColor="{Binding CurrentRadius, Converter={StaticResource RadiusToColorConverter}, ConverterParameter=1}"
                         TextColor="White"
-                        FontSize="14"
-                        Padding="10,8">
+                    FontSize="{DynamicResource ButtonFontSize}"
+                    HeightRequest="{DynamicResource ButtonHeight}"
+                    Padding="10,8">
                         <Button.CommandParameter>
                             <x:Double>1.0</x:Double>
                         </Button.CommandParameter>
@@ -68,8 +72,9 @@
                         Command="{Binding ChangeRadiusCommand}"
                         BackgroundColor="{Binding CurrentRadius, Converter={StaticResource RadiusToColorConverter}, ConverterParameter=3}"
                         TextColor="White"
-                        FontSize="14"
-                        Padding="10,8">
+                    FontSize="{DynamicResource ButtonFontSize}"
+                    HeightRequest="{DynamicResource ButtonHeight}"
+                    Padding="10,8">
                         <Button.CommandParameter>
                             <x:Double>3.0</x:Double>
                         </Button.CommandParameter>
@@ -80,8 +85,9 @@
                         Command="{Binding ChangeRadiusCommand}"
                         BackgroundColor="{Binding CurrentRadius, Converter={StaticResource RadiusToColorConverter}, ConverterParameter=5}"
                         TextColor="White"
-                        FontSize="14"
-                        Padding="10,8">
+                    FontSize="{DynamicResource ButtonFontSize}"
+                    HeightRequest="{DynamicResource ButtonHeight}"
+                    Padding="10,8">
                         <Button.CommandParameter>
                             <x:Double>5.0</x:Double>
                         </Button.CommandParameter>
@@ -92,8 +98,9 @@
                         Command="{Binding ShowAllCommand}"
                         BackgroundColor="{Binding CurrentRadius, Converter={StaticResource RadiusToColorConverter}, ConverterParameter=0}"
                         TextColor="White"
-                        FontSize="14"
-                        Padding="10,8" />
+                    FontSize="{DynamicResource ButtonFontSize}"
+                    HeightRequest="{DynamicResource ButtonHeight}"
+                    Padding="10,8" />
                 </Grid>
             </VerticalStackLayout>
 
@@ -102,13 +109,14 @@
                 Grid.Row="3"
                 BackgroundColor="{StaticResource PrimaryCTA}"
                 CornerRadius="8"
-                Padding="10"
+                Padding="12"
                 Margin="0,0,0,10"
                 BorderColor="Transparent">
                 <Label
                     Text="{Binding FilterStatusText}"
                     Style="{StaticResource BodyText}"
                     FontAttributes="Bold"
+                    FontSize="{DynamicResource ButtonFontSize}"
                     TextColor="White"
                     HorizontalOptions="Center" />
             </Frame>
@@ -129,42 +137,35 @@
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="models:Person">
                         <Frame 
-                            Padding="12"
+                            Padding="{DynamicResource CardPadding}"
                             Margin="5,4"
                             CornerRadius="8"
                             BorderColor="{StaticResource TextTertiary}"
                             BackgroundColor="{StaticResource SurfaceDarkGray}"
-                            HasShadow="True">
+                            HasShadow="True"
+                            MinimumHeightRequest="48">
                             <Frame.GestureRecognizers>
                                 <TapGestureRecognizer 
                                     Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MapViewModel}}, Path=ShowPersonDetailCommand}"
                                     CommandParameter="{Binding}" />
                             </Frame.GestureRecognizers>
-                            <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="Auto,*,Auto">
+                            <Grid RowDefinitions="Auto" ColumnDefinitions="Auto,*,Auto">
                                 <!-- Blue Circle Icon (User Marker) -->
                                 <BoxView 
                                     Grid.Row="0" Grid.Column="0"
-                                    WidthRequest="16"
-                                    HeightRequest="16"
-                                    CornerRadius="8"
+                                    WidthRequest="14"
+                                    HeightRequest="14"
+                                    CornerRadius="7"
                                     Color="{StaticResource UserMarker}"
                                     VerticalOptions="Center"
                                     Margin="0,0,10,0" />
                                 
-                                <VerticalStackLayout Grid.Row="0" Grid.Column="1" Grid.RowSpan="2" Spacing="4">
-                                    <Label 
-                                        Text="{Binding Name}"
-                                        Style="{StaticResource Heading2}"
-                                        FontSize="16" />
-                                    <Label 
-                                        Text="{Binding Address}"
-                                        Style="{StaticResource SmallText}"
-                                        FontSize="12" />
-                                    <Label 
-                                        Text="{Binding Phone}"
-                                        Style="{StaticResource CaptionText}"
-                                        IsVisible="{Binding Phone, Converter={StaticResource IsNotNullConverter}}" />
-                                </VerticalStackLayout>
+                                <Label 
+                                    Grid.Row="0" Grid.Column="1"
+                                    Text="{Binding Name}"
+                                    Style="{StaticResource Heading2}"
+                                    LineBreakMode="TailTruncation"
+                                    VerticalOptions="Center" />
 
                                 <!-- Distance (shown in Assistant mode) -->
                                 <Label 
@@ -196,41 +197,34 @@
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="models:Person">
                         <Frame 
-                            Padding="12"
+                            Padding="12,8"
                             Margin="5,4"
                             CornerRadius="8"
                             BorderColor="{StaticResource TextTertiary}"
                             BackgroundColor="{StaticResource SurfaceDarkGray}"
-                            HasShadow="True">
+                            HasShadow="True"
+                            MinimumHeightRequest="48">
                             <Frame.GestureRecognizers>
                                 <TapGestureRecognizer 
                                     Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MapViewModel}}, Path=ShowPersonDetailCommand}"
                                     CommandParameter="{Binding}" />
                             </Frame.GestureRecognizers>
-                            <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="Auto,*,Auto">
+                            <Grid RowDefinitions="Auto" ColumnDefinitions="Auto,*,Auto">
                                 <!-- Orange Square Icon (Assistant Marker) -->
                                 <BoxView 
                                     Grid.Row="0" Grid.Column="0"
-                                    WidthRequest="16"
-                                    HeightRequest="16"
+                                    WidthRequest="14"
+                                    HeightRequest="14"
                                     Color="{StaticResource AssistantMarker}"
                                     VerticalOptions="Center"
                                     Margin="0,0,10,0" />
                                 
-                                <VerticalStackLayout Grid.Row="0" Grid.Column="1" Grid.RowSpan="2" Spacing="4">
-                                    <Label 
-                                        Text="{Binding Name}"
-                                        Style="{StaticResource Heading2}"
-                                        FontSize="16" />
-                                    <Label 
-                                        Text="{Binding Address}"
-                                        Style="{StaticResource SmallText}"
-                                        FontSize="12" />
-                                    <Label 
-                                        Text="{Binding Phone}"
-                                        Style="{StaticResource CaptionText}"
-                                        IsVisible="{Binding Phone, Converter={StaticResource IsNotNullConverter}}" />
-                                </VerticalStackLayout>
+                                <Label 
+                                    Grid.Row="0" Grid.Column="1"
+                                    Text="{Binding Name}"
+                                    Style="{StaticResource Heading2}"
+                                    LineBreakMode="TailTruncation"
+                                    VerticalOptions="Center" />
 
                                 <!-- Distance (if filtered) -->
                                 <Label 
@@ -273,7 +267,8 @@
                 BackgroundColor="#B0000000"
                 CornerRadius="8"
                 BorderColor="Transparent"
-                HasShadow="False">
+                HasShadow="False"
+                Scale="{DynamicResource InfoOverlayScale}">
                 <VerticalStackLayout Spacing="6">
                     <Label 
                         Style="{StaticResource SmallText}" 
@@ -312,7 +307,8 @@
                 BackgroundColor="{StaticResource SurfaceDarkGray}"
                 Stroke="{StaticResource PrimaryCTA}"
                 StrokeThickness="2"
-                StrokeShape="RoundRectangle 12,0,0,12">
+                StrokeShape="RoundRectangle 12,0,0,12"
+                Scale="{DynamicResource DetailPanelScale}">
                 <Grid RowDefinitions="Auto,*,Auto" Padding="20">
                     
                     <!-- Header -->

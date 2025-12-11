@@ -16,6 +16,7 @@
                 Grid.Column="0"
                 Text="이용자/활동지원사 관리"
                 Style="{StaticResource Heading1}"
+                FontSize="{DynamicResource TitleFontSize}"
                 TextColor="{StaticResource PrimaryCTA}"
                 VerticalOptions="Center" />
             
@@ -26,7 +27,9 @@
                 BackgroundColor="{StaticResource PrimaryCTA}"
                 TextColor="{StaticResource TextWhite}"
                 Padding="20,10"
-                CornerRadius="8" />
+                CornerRadius="8"
+                FontSize="{DynamicResource ButtonFontSize}"
+                HeightRequest="{DynamicResource ButtonHeight}" />
         </Grid>
 
         <!-- Filter Bar -->
@@ -41,7 +44,9 @@
                 BackgroundColor="{StaticResource SurfaceDarkGray}"
                 TextColor="{StaticResource TextWhite}"
                 Padding="15,10"
-                CornerRadius="8">
+                CornerRadius="8"
+                FontSize="{DynamicResource ButtonFontSize}"
+                HeightRequest="{DynamicResource ButtonHeight}">
                 <Button.Triggers>
                     <DataTrigger TargetType="Button" Binding="{Binding SelectedTypeFilter}" Value="all">
                         <Setter Property="BackgroundColor" Value="{StaticResource PrimaryCTA}" />
@@ -58,7 +63,9 @@
                 BackgroundColor="{StaticResource SurfaceDarkGray}"
                 TextColor="{StaticResource TextWhite}"
                 Padding="15,10"
-                CornerRadius="8">
+                CornerRadius="8"
+                FontSize="{DynamicResource ButtonFontSize}"
+                HeightRequest="{DynamicResource ButtonHeight}">
                 <Button.Triggers>
                     <DataTrigger TargetType="Button" Binding="{Binding SelectedTypeFilter}" Value="user">
                         <Setter Property="BackgroundColor" Value="{StaticResource MarkerUser}" />
@@ -75,7 +82,9 @@
                 BackgroundColor="{StaticResource SurfaceDarkGray}"
                 TextColor="{StaticResource TextWhite}"
                 Padding="15,10"
-                CornerRadius="8">
+                CornerRadius="8"
+                FontSize="{DynamicResource ButtonFontSize}"
+                HeightRequest="{DynamicResource ButtonHeight}">
                 <Button.Triggers>
                     <DataTrigger TargetType="Button" Binding="{Binding SelectedTypeFilter}" Value="assistant">
                         <Setter Property="BackgroundColor" Value="{StaticResource MarkerAssistant}" />
@@ -102,7 +111,9 @@
                 TextColor="{StaticResource TextWhite}"
                 Padding="15,10"
                 CornerRadius="8"
-                WidthRequest="50" />
+                WidthRequest="50"
+                FontSize="{DynamicResource ButtonFontSize}"
+                HeightRequest="{DynamicResource ButtonHeight}" />
         </Grid>
 
         <!-- Content: DataGrid -->

@@ -1,3 +1,6 @@
+using CommunityToolkit.Mvvm.Messaging;
+using LmpLink.MAUI.Messages;
+
 namespace LmpLink.MAUI.Views.Pages;
 
 public partial class MapPage : ContentPage
@@ -44,6 +47,14 @@ public partial class MapPage : ContentPage
             MauiProgram.Log("[11] Subscribing to WebView events...");
             MapWebView.Navigated += OnWebViewNavigated;
             MapWebView.Navigating += OnWebViewNavigating;
+            
+            // Subscribe to settings changes
+            WeakReferenceMessenger.Default.Register<SettingsChangedMessage>(this, async (r, m) =>
+            {
+                MauiProgram.Log("[MapPage] SettingsChangedMessage received, applying settings to map");
+                await ApplySettingsToMapAsync();
+            });
+            
             MauiProgram.Log("=== MapPage Constructor SUCCESS ===");
         }
         catch (Exception ex)
@@ -204,6 +215,9 @@ public partial class MapPage : ContentPage
             var allPersons = _viewModel.Users.Concat(_viewModel.Assistants).ToList();
             MauiProgram.Log($"[WebView] Adding {allPersons.Count} markers...");
             await _mapService.AddMarkersAsync(allPersons);
+
+            // Apply initial settings
+            await ApplySettingsToMapAsync();
 
             MauiProgram.Log("=== Map initialization SUCCESS ===");
         }
@@ -458,8 +472,49 @@ public partial class MapPage : ContentPage
     {
         base.OnDisappearing();
         MauiProgram.Log("=== MapPage.OnDisappearing ===");
-        
+
         // Don't unsubscribe from events on tab switch to maintain state
         // Events will be re-subscribed in OnAppearing if needed
+    }
+
+    /// <summary>
+    /// Apply current settings from ViewModel to the map.
+    /// </summary>
+    private async Task ApplySettingsToMapAsync()
+    {
+        if (_viewModel == null || _mapService == null || !_isMapReady)
+        {
+            MauiProgram.Log("[ApplySettingsToMap] Skipped: ViewModel, MapService, or Map not ready");
+            return;
+        }
+
+        try
+        {
+            MauiProgram.Log($"[ApplySettingsToMap] Applying: UserMarker={_viewModel.UserMarkerColor}, Size={_viewModel.MarkerSize}, Circle={_viewModel.CircleColor}");
+            
+            await _mapService.ApplyMapSettingsAsync(
+                _viewModel.UserMarkerColor,
+                _viewModel.AssistantMarkerColor,
+                _viewModel.MarkerSize,
+                _viewModel.UserMarkerBorderWidth,
+                _viewModel.AssistantMarkerBorderWidth,
+                _viewModel.UserMarkerShape,
+                _viewModel.AssistantMarkerShape,
+                _viewModel.HighlightColor,
+                _viewModel.HighlightBorderWidth,
+                _viewModel.HighlightSizeMultiplier,
+                _viewModel.CircleColor,
+                _viewModel.CircleOpacity,
+                _viewModel.CircleBorderWidth,
+                _viewModel.UiScale
+            );
+            
+            MauiProgram.Log("[ApplySettingsToMap] Settings applied successfully");
+        }
+        catch (Exception ex)
+        {
+            MauiProgram.Log($"[ApplySettingsToMap] FAILED: {ex.Message}");
+            MauiProgram.Log(ex.StackTrace ?? "");
+        }
     }
 }

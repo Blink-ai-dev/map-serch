@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
 using System.Reflection;
+using LmpLink.MAUI.Services.Implementation;
 
 namespace LmpLink.MAUI;
 
@@ -53,6 +54,7 @@ public static class MauiProgram
             builder.Services.AddSingleton<ILocationService, LocationService>();
             builder.Services.AddSingleton<IMapService, MapService>();
             builder.Services.AddSingleton<ISupabaseService, SupabaseService>();
+            builder.Services.AddSingleton<ScaleService>();
             Log("[3] Services registered");
 
             // Register ViewModels

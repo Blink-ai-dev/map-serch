@@ -307,7 +307,6 @@ public class SupabaseService : ISupabaseService
             Id = person.Id,
             Name = person.Name,
             Type = person.Type.ToString().ToLower(),
-            Email = $"noemail_{person.Id}@placeholder.local", // Fix: Set placeholder email to satisfy NOT NULL constraint
             Latitude = person.Latitude,
             Longitude = person.Longitude,
             Address = person.Address,

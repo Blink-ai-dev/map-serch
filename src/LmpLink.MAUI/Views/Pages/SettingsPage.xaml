@@ -8,7 +8,7 @@
              BackgroundColor="{StaticResource BackgroundDeepNavy}">
 
     <ScrollView>
-        <Grid Padding="20" RowDefinitions="Auto,Auto,Auto,Auto" ColumnDefinitions="*,*" ColumnSpacing="20" RowSpacing="20">
+        <Grid Padding="20" RowDefinitions="Auto,Auto,Auto,Auto,Auto" ColumnDefinitions="*,*" ColumnSpacing="20" RowSpacing="20">
             
             <!-- Title (Full Width) -->
             <Label 
@@ -97,7 +97,7 @@
                         </HorizontalStackLayout>
                         <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,*" ColumnSpacing="10">
                             <Label Grid.Column="0" Text="현재:" Style="{StaticResource CaptionText}" TextColor="{StaticResource TextLightGray}" VerticalOptions="Center" />
-                            <Frame Grid.Column="1" WidthRequest="30" HeightRequest="30" CornerRadius="6" Padding="0" HasShadow="False" BackgroundColor="#60A5FA" />
+                            <Frame Grid.Column="1" WidthRequest="30" HeightRequest="30" CornerRadius="6" Padding="0" HasShadow="False" BackgroundColor="{Binding SavedUserMarkerColor}" />
                             <Label Grid.Column="2" Text="→ 미리보기:" Style="{StaticResource CaptionText}" TextColor="{StaticResource TextLightGray}" VerticalOptions="Center" Margin="10,0,0,0" />
                             <Frame Grid.Column="3" WidthRequest="30" HeightRequest="30" CornerRadius="6" Padding="0" HasShadow="False" BackgroundColor="{Binding UserMarkerColor}" />
                             <Label Grid.Column="4" Text="{Binding UserMarkerColor}" Style="{StaticResource Body2}" TextColor="{StaticResource AccentSecondary}" VerticalOptions="Center" />
@@ -174,7 +174,7 @@
                         </HorizontalStackLayout>
                         <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,*" ColumnSpacing="10">
                             <Label Grid.Column="0" Text="현재:" Style="{StaticResource CaptionText}" TextColor="{StaticResource TextLightGray}" VerticalOptions="Center" />
-                            <Frame Grid.Column="1" WidthRequest="30" HeightRequest="30" CornerRadius="6" Padding="0" HasShadow="False" BackgroundColor="#FB923C" />
+                            <Frame Grid.Column="1" WidthRequest="30" HeightRequest="30" CornerRadius="6" Padding="0" HasShadow="False" BackgroundColor="{Binding SavedAssistantMarkerColor}" />
                             <Label Grid.Column="2" Text="→ 미리보기:" Style="{StaticResource CaptionText}" TextColor="{StaticResource TextLightGray}" VerticalOptions="Center" Margin="10,0,0,0" />
                             <Frame Grid.Column="3" WidthRequest="30" HeightRequest="30" CornerRadius="6" Padding="0" HasShadow="False" BackgroundColor="{Binding AssistantMarkerColor}" />
                             <Label Grid.Column="4" Text="{Binding AssistantMarkerColor}" Style="{StaticResource Body2}" TextColor="{StaticResource AccentSecondary}" VerticalOptions="Center" />
@@ -211,6 +211,228 @@
                             </Button>
                         </HorizontalStackLayout>
                     </VerticalStackLayout>
+
+                    <!-- User Marker Border Width -->
+                    <VerticalStackLayout Spacing="8">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label 
+                                Grid.Column="0"
+                                Text="이용자 마커 테두리 두께"
+                                Style="{StaticResource Body1}"
+                                TextColor="{StaticResource TextLightGray}" />
+                            <Label 
+                                Grid.Column="1"
+                                Text="{Binding UserMarkerBorderWidth, StringFormat='{0}px'}"
+                                Style="{StaticResource Body1}"
+                                TextColor="{StaticResource PrimaryCTA}" />
+                        </Grid>
+                        <Slider 
+                            Value="{Binding UserMarkerBorderWidth}"
+                            Minimum="1"
+                            Maximum="5"
+                            MinimumTrackColor="{StaticResource PrimaryCTA}"
+                            MaximumTrackColor="{StaticResource TextTertiary}"
+                            ThumbColor="{StaticResource PrimaryCTA}" />
+                    </VerticalStackLayout>
+
+                    <!-- Assistant Marker Border Width -->
+                    <VerticalStackLayout Spacing="8">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label 
+                                Grid.Column="0"
+                                Text="활동지원사 마커 테두리 두께"
+                                Style="{StaticResource Body1}"
+                                TextColor="{StaticResource TextLightGray}" />
+                            <Label 
+                                Grid.Column="1"
+                                Text="{Binding AssistantMarkerBorderWidth, StringFormat='{0}px'}"
+                                Style="{StaticResource Body1}"
+                                TextColor="{StaticResource PrimaryCTA}" />
+                        </Grid>
+                        <Slider 
+                            Value="{Binding AssistantMarkerBorderWidth}"
+                            Minimum="1"
+                            Maximum="5"
+                            MinimumTrackColor="{StaticResource PrimaryCTA}"
+                            MaximumTrackColor="{StaticResource TextTertiary}"
+                            ThumbColor="{StaticResource PrimaryCTA}" />
+                    </VerticalStackLayout>
+
+                    <!-- User Marker Shape -->
+                    <VerticalStackLayout Spacing="8">
+                        <Label 
+                            Text="이용자 마커 모양"
+                            Style="{StaticResource Body1}"
+                            TextColor="{StaticResource TextLightGray}" />
+                        <HorizontalStackLayout Spacing="10">
+                            <Button Text="● 원형" Command="{Binding UpdateUserMarkerShapeCommand}" CommandParameter="Circle" BackgroundColor="{StaticResource SurfaceDarkNavy}" TextColor="{StaticResource TextWhite}" Padding="15,8" CornerRadius="6">
+                                <Button.Triggers>
+                                    <DataTrigger TargetType="Button" Binding="{Binding UserMarkerShape}" Value="Circle">
+                                        <Setter Property="BackgroundColor" Value="{StaticResource PrimaryCTA}" />
+                                    </DataTrigger>
+                                </Button.Triggers>
+                            </Button>
+                            <Button Text="■ 사각형" Command="{Binding UpdateUserMarkerShapeCommand}" CommandParameter="Square" BackgroundColor="{StaticResource SurfaceDarkNavy}" TextColor="{StaticResource TextWhite}" Padding="15,8" CornerRadius="6">
+                                <Button.Triggers>
+                                    <DataTrigger TargetType="Button" Binding="{Binding UserMarkerShape}" Value="Square">
+                                        <Setter Property="BackgroundColor" Value="{StaticResource PrimaryCTA}" />
+                                    </DataTrigger>
+                                </Button.Triggers>
+                            </Button>
+                            <Button Text="◆ 다이아몬드" Command="{Binding UpdateUserMarkerShapeCommand}" CommandParameter="Diamond" BackgroundColor="{StaticResource SurfaceDarkNavy}" TextColor="{StaticResource TextWhite}" Padding="15,8" CornerRadius="6">
+                                <Button.Triggers>
+                                    <DataTrigger TargetType="Button" Binding="{Binding UserMarkerShape}" Value="Diamond">
+                                        <Setter Property="BackgroundColor" Value="{StaticResource PrimaryCTA}" />
+                                    </DataTrigger>
+                                </Button.Triggers>
+                            </Button>
+                        </HorizontalStackLayout>
+                    </VerticalStackLayout>
+
+                    <!-- Assistant Marker Shape -->
+                    <VerticalStackLayout Spacing="8">
+                        <Label 
+                            Text="활동지원사 마커 모양"
+                            Style="{StaticResource Body1}"
+                            TextColor="{StaticResource TextLightGray}" />
+                        <HorizontalStackLayout Spacing="10">
+                            <Button Text="● 원형" Command="{Binding UpdateAssistantMarkerShapeCommand}" CommandParameter="Circle" BackgroundColor="{StaticResource SurfaceDarkNavy}" TextColor="{StaticResource TextWhite}" Padding="15,8" CornerRadius="6">
+                                <Button.Triggers>
+                                    <DataTrigger TargetType="Button" Binding="{Binding AssistantMarkerShape}" Value="Circle">
+                                        <Setter Property="BackgroundColor" Value="{StaticResource PrimaryCTA}" />
+                                    </DataTrigger>
+                                </Button.Triggers>
+                            </Button>
+                            <Button Text="■ 사각형" Command="{Binding UpdateAssistantMarkerShapeCommand}" CommandParameter="Square" BackgroundColor="{StaticResource SurfaceDarkNavy}" TextColor="{StaticResource TextWhite}" Padding="15,8" CornerRadius="6">
+                                <Button.Triggers>
+                                    <DataTrigger TargetType="Button" Binding="{Binding AssistantMarkerShape}" Value="Square">
+                                        <Setter Property="BackgroundColor" Value="{StaticResource PrimaryCTA}" />
+                                    </DataTrigger>
+                                </Button.Triggers>
+                            </Button>
+                            <Button Text="◆ 다이아몬드" Command="{Binding UpdateAssistantMarkerShapeCommand}" CommandParameter="Diamond" BackgroundColor="{StaticResource SurfaceDarkNavy}" TextColor="{StaticResource TextWhite}" Padding="15,8" CornerRadius="6">
+                                <Button.Triggers>
+                                    <DataTrigger TargetType="Button" Binding="{Binding AssistantMarkerShape}" Value="Diamond">
+                                        <Setter Property="BackgroundColor" Value="{StaticResource PrimaryCTA}" />
+                                    </DataTrigger>
+                                </Button.Triggers>
+                            </Button>
+                        </HorizontalStackLayout>
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Highlight Settings (NEW) -->
+            <Frame Grid.Row="3" Grid.Column="0" BackgroundColor="{StaticResource SurfaceDarkGray}" Padding="20" CornerRadius="12">
+                <VerticalStackLayout Spacing="15">
+                    <Label 
+                        Text="✨ 강조 설정"
+                        Style="{StaticResource Heading3}"
+                        TextColor="{StaticResource TextWhite}" />
+                    
+                    <!-- Highlight Color -->
+                    <VerticalStackLayout Spacing="8">
+                        <Label 
+                            Text="강조 테두리 색상"
+                            Style="{StaticResource Body1}"
+                            TextColor="{StaticResource TextLightGray}" />
+                        <HorizontalStackLayout Spacing="10">
+                            <Border WidthRequest="50" HeightRequest="50" StrokeThickness="3" BackgroundColor="#FFFFFF">
+                                <Border.StrokeShape><RoundRectangle CornerRadius="8" /></Border.StrokeShape>
+                                <Border.Triggers>
+                                    <DataTrigger TargetType="Border" Binding="{Binding HighlightColor}" Value="#FFFFFF">
+                                        <Setter Property="Stroke" Value="#FBBF24" />
+                                    </DataTrigger>
+                                </Border.Triggers>
+                                <Border.Stroke><SolidColorBrush Color="Transparent" /></Border.Stroke>
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding UpdateHighlightColorCommand}" CommandParameter="#FFFFFF" />
+                                </Border.GestureRecognizers>
+                            </Border>
+                            <Border WidthRequest="50" HeightRequest="50" StrokeThickness="3" BackgroundColor="#FBBF24">
+                                <Border.StrokeShape><RoundRectangle CornerRadius="8" /></Border.StrokeShape>
+                                <Border.Triggers>
+                                    <DataTrigger TargetType="Border" Binding="{Binding HighlightColor}" Value="#FBBF24">
+                                        <Setter Property="Stroke" Value="#FBBF24" />
+                                    </DataTrigger>
+                                </Border.Triggers>
+                                <Border.Stroke><SolidColorBrush Color="Transparent" /></Border.Stroke>
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding UpdateHighlightColorCommand}" CommandParameter="#FBBF24" />
+                                </Border.GestureRecognizers>
+                            </Border>
+                            <Border WidthRequest="50" HeightRequest="50" StrokeThickness="3" BackgroundColor="#F87171">
+                                <Border.StrokeShape><RoundRectangle CornerRadius="8" /></Border.StrokeShape>
+                                <Border.Triggers>
+                                    <DataTrigger TargetType="Border" Binding="{Binding HighlightColor}" Value="#F87171">
+                                        <Setter Property="Stroke" Value="#FBBF24" />
+                                    </DataTrigger>
+                                </Border.Triggers>
+                                <Border.Stroke><SolidColorBrush Color="Transparent" /></Border.Stroke>
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding UpdateHighlightColorCommand}" CommandParameter="#F87171" />
+                                </Border.GestureRecognizers>
+                            </Border>
+                            <Border WidthRequest="50" HeightRequest="50" StrokeThickness="3" BackgroundColor="#34D399">
+                                <Border.StrokeShape><RoundRectangle CornerRadius="8" /></Border.StrokeShape>
+                                <Border.Triggers>
+                                    <DataTrigger TargetType="Border" Binding="{Binding HighlightColor}" Value="#34D399">
+                                        <Setter Property="Stroke" Value="#FBBF24" />
+                                    </DataTrigger>
+                                </Border.Triggers>
+                                <Border.Stroke><SolidColorBrush Color="Transparent" /></Border.Stroke>
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding UpdateHighlightColorCommand}" CommandParameter="#34D399" />
+                                </Border.GestureRecognizers>
+                            </Border>
+                        </HorizontalStackLayout>
+                    </VerticalStackLayout>
+
+                    <!-- Highlight Border Width -->
+                    <VerticalStackLayout Spacing="8">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label 
+                                Grid.Column="0"
+                                Text="강조 테두리 두께"
+                                Style="{StaticResource Body1}"
+                                TextColor="{StaticResource TextLightGray}" />
+                            <Label 
+                                Grid.Column="1"
+                                Text="{Binding HighlightBorderWidth, StringFormat='{0}px'}"
+                                Style="{StaticResource Body1}"
+                                TextColor="{StaticResource PrimaryCTA}" />
+                        </Grid>
+                        <Slider 
+                            Value="{Binding HighlightBorderWidth}"
+                            Minimum="1"
+                            Maximum="5"
+                            MinimumTrackColor="{StaticResource PrimaryCTA}"
+                            MaximumTrackColor="{StaticResource TextTertiary}"
+                            ThumbColor="{StaticResource PrimaryCTA}" />
+                    </VerticalStackLayout>
+
+                    <!-- Highlight Size Multiplier -->
+                    <VerticalStackLayout Spacing="8">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label 
+                                Grid.Column="0"
+                                Text="강조 크기 배율"
+                                Style="{StaticResource Body1}"
+                                TextColor="{StaticResource TextLightGray}" />
+                            <Label 
+                                Grid.Column="1"
+                                Text="{Binding HighlightSizeMultiplier, StringFormat='{0:F1}배'}"
+                                Style="{StaticResource Body1}"
+                                TextColor="{StaticResource PrimaryCTA}" />
+                        </Grid>
+                        <Slider 
+                            Value="{Binding HighlightSizeMultiplier}"
+                            Minimum="1.5"
+                            Maximum="3.0"
+                            MinimumTrackColor="{StaticResource PrimaryCTA}"
+                            MaximumTrackColor="{StaticResource TextTertiary}"
+                            ThumbColor="{StaticResource PrimaryCTA}" />
+                    </VerticalStackLayout>
                 </VerticalStackLayout>
             </Frame>
 
@@ -237,30 +459,33 @@
                             ThumbColor="{StaticResource TextWhite}" />
                     </Grid>
 
-                    <!-- Font Size -->
+                    <!-- Info Overlay Size -->
                     <VerticalStackLayout Spacing="8">
                         <Label 
-                            Text="글꼴 크기"
+                            Text="인원 집계 창 크기"
                             Style="{StaticResource Body1}"
                             TextColor="{StaticResource TextLightGray}" />
                         <HorizontalStackLayout Spacing="10">
-                            <Button Text="Small" Command="{Binding UpdateFontSizeCommand}" CommandParameter="Small" BackgroundColor="{StaticResource SurfaceDarkNavy}" TextColor="{StaticResource TextWhite}" Padding="15,8" CornerRadius="6">
+                            <Button Text="작게" Command="{Binding UpdateInfoOverlaySizeCommand}" CommandParameter="작게" BackgroundColor="{StaticResource SurfaceDarkNavy}" TextColor="{StaticResource TextWhite}" Padding="15,8" CornerRadius="6"
+                                    FontSize="{DynamicResource ButtonFontSize}" HeightRequest="{DynamicResource ButtonHeight}">
                                 <Button.Triggers>
-                                    <DataTrigger TargetType="Button" Binding="{Binding FontSize}" Value="Small">
+                                    <DataTrigger TargetType="Button" Binding="{Binding InfoOverlaySize}" Value="작게">
                                         <Setter Property="BackgroundColor" Value="{StaticResource PrimaryCTA}" />
                                     </DataTrigger>
                                 </Button.Triggers>
                             </Button>
-                            <Button Text="Medium" Command="{Binding UpdateFontSizeCommand}" CommandParameter="Medium" BackgroundColor="{StaticResource SurfaceDarkNavy}" TextColor="{StaticResource TextWhite}" Padding="15,8" CornerRadius="6">
+                            <Button Text="보통" Command="{Binding UpdateInfoOverlaySizeCommand}" CommandParameter="보통" BackgroundColor="{StaticResource SurfaceDarkNavy}" TextColor="{StaticResource TextWhite}" Padding="15,8" CornerRadius="6"
+                                    FontSize="{DynamicResource ButtonFontSize}" HeightRequest="{DynamicResource ButtonHeight}">
                                 <Button.Triggers>
-                                    <DataTrigger TargetType="Button" Binding="{Binding FontSize}" Value="Medium">
+                                    <DataTrigger TargetType="Button" Binding="{Binding InfoOverlaySize}" Value="보통">
                                         <Setter Property="BackgroundColor" Value="{StaticResource PrimaryCTA}" />
                                     </DataTrigger>
                                 </Button.Triggers>
                             </Button>
-                            <Button Text="Large" Command="{Binding UpdateFontSizeCommand}" CommandParameter="Large" BackgroundColor="{StaticResource SurfaceDarkNavy}" TextColor="{StaticResource TextWhite}" Padding="15,8" CornerRadius="6">
+                            <Button Text="크게" Command="{Binding UpdateInfoOverlaySizeCommand}" CommandParameter="크게" BackgroundColor="{StaticResource SurfaceDarkNavy}" TextColor="{StaticResource TextWhite}" Padding="15,8" CornerRadius="6"
+                                    FontSize="{DynamicResource ButtonFontSize}" HeightRequest="{DynamicResource ButtonHeight}">
                                 <Button.Triggers>
-                                    <DataTrigger TargetType="Button" Binding="{Binding FontSize}" Value="Large">
+                                    <DataTrigger TargetType="Button" Binding="{Binding InfoOverlaySize}" Value="크게">
                                         <Setter Property="BackgroundColor" Value="{StaticResource PrimaryCTA}" />
                                     </DataTrigger>
                                 </Button.Triggers>
@@ -268,30 +493,67 @@
                         </HorizontalStackLayout>
                     </VerticalStackLayout>
 
-                    <!-- Card Size -->
+                    <!-- Tooltip Size -->
                     <VerticalStackLayout Spacing="8">
                         <Label 
-                            Text="카드 크기"
+                            Text="마커 툴팁 창 크기"
                             Style="{StaticResource Body1}"
                             TextColor="{StaticResource TextLightGray}" />
                         <HorizontalStackLayout Spacing="10">
-                            <Button Text="Compact" Command="{Binding UpdateCardSizeCommand}" CommandParameter="Compact" BackgroundColor="{StaticResource SurfaceDarkNavy}" TextColor="{StaticResource TextWhite}" Padding="15,8" CornerRadius="6">
+                            <Button Text="작게" Command="{Binding UpdateTooltipSizeCommand}" CommandParameter="작게" BackgroundColor="{StaticResource SurfaceDarkNavy}" TextColor="{StaticResource TextWhite}" Padding="15,8" CornerRadius="6"
+                                    FontSize="{DynamicResource ButtonFontSize}" HeightRequest="{DynamicResource ButtonHeight}">
                                 <Button.Triggers>
-                                    <DataTrigger TargetType="Button" Binding="{Binding CardSize}" Value="Compact">
+                                    <DataTrigger TargetType="Button" Binding="{Binding TooltipSize}" Value="작게">
                                         <Setter Property="BackgroundColor" Value="{StaticResource PrimaryCTA}" />
                                     </DataTrigger>
                                 </Button.Triggers>
                             </Button>
-                            <Button Text="Normal" Command="{Binding UpdateCardSizeCommand}" CommandParameter="Normal" BackgroundColor="{StaticResource SurfaceDarkNavy}" TextColor="{StaticResource TextWhite}" Padding="15,8" CornerRadius="6">
+                            <Button Text="보통" Command="{Binding UpdateTooltipSizeCommand}" CommandParameter="보통" BackgroundColor="{StaticResource SurfaceDarkNavy}" TextColor="{StaticResource TextWhite}" Padding="15,8" CornerRadius="6"
+                                    FontSize="{DynamicResource ButtonFontSize}" HeightRequest="{DynamicResource ButtonHeight}">
                                 <Button.Triggers>
-                                    <DataTrigger TargetType="Button" Binding="{Binding CardSize}" Value="Normal">
+                                    <DataTrigger TargetType="Button" Binding="{Binding TooltipSize}" Value="보통">
                                         <Setter Property="BackgroundColor" Value="{StaticResource PrimaryCTA}" />
                                     </DataTrigger>
                                 </Button.Triggers>
                             </Button>
-                            <Button Text="Large" Command="{Binding UpdateCardSizeCommand}" CommandParameter="Large" BackgroundColor="{StaticResource SurfaceDarkNavy}" TextColor="{StaticResource TextWhite}" Padding="15,8" CornerRadius="6">
+                            <Button Text="크게" Command="{Binding UpdateTooltipSizeCommand}" CommandParameter="크게" BackgroundColor="{StaticResource SurfaceDarkNavy}" TextColor="{StaticResource TextWhite}" Padding="15,8" CornerRadius="6"
+                                    FontSize="{DynamicResource ButtonFontSize}" HeightRequest="{DynamicResource ButtonHeight}">
                                 <Button.Triggers>
-                                    <DataTrigger TargetType="Button" Binding="{Binding CardSize}" Value="Large">
+                                    <DataTrigger TargetType="Button" Binding="{Binding TooltipSize}" Value="크게">
+                                        <Setter Property="BackgroundColor" Value="{StaticResource PrimaryCTA}" />
+                                    </DataTrigger>
+                                </Button.Triggers>
+                            </Button>
+                        </HorizontalStackLayout>
+                    </VerticalStackLayout>
+
+                    <!-- Detail Panel Size -->
+                    <VerticalStackLayout Spacing="8">
+                        <Label 
+                            Text="상세 정보 창 크기"
+                            Style="{StaticResource Body1}"
+                            TextColor="{StaticResource TextLightGray}" />
+                        <HorizontalStackLayout Spacing="10">
+                            <Button Text="작게" Command="{Binding UpdateDetailPanelSizeCommand}" CommandParameter="작게" BackgroundColor="{StaticResource SurfaceDarkNavy}" TextColor="{StaticResource TextWhite}" Padding="15,8" CornerRadius="6"
+                                    FontSize="{DynamicResource ButtonFontSize}" HeightRequest="{DynamicResource ButtonHeight}">
+                                <Button.Triggers>
+                                    <DataTrigger TargetType="Button" Binding="{Binding DetailPanelSize}" Value="작게">
+                                        <Setter Property="BackgroundColor" Value="{StaticResource PrimaryCTA}" />
+                                    </DataTrigger>
+                                </Button.Triggers>
+                            </Button>
+                            <Button Text="보통" Command="{Binding UpdateDetailPanelSizeCommand}" CommandParameter="보통" BackgroundColor="{StaticResource SurfaceDarkNavy}" TextColor="{StaticResource TextWhite}" Padding="15,8" CornerRadius="6"
+                                    FontSize="{DynamicResource ButtonFontSize}" HeightRequest="{DynamicResource ButtonHeight}">
+                                <Button.Triggers>
+                                    <DataTrigger TargetType="Button" Binding="{Binding DetailPanelSize}" Value="보통">
+                                        <Setter Property="BackgroundColor" Value="{StaticResource PrimaryCTA}" />
+                                    </DataTrigger>
+                                </Button.Triggers>
+                            </Button>
+                            <Button Text="크게" Command="{Binding UpdateDetailPanelSizeCommand}" CommandParameter="크게" BackgroundColor="{StaticResource SurfaceDarkNavy}" TextColor="{StaticResource TextWhite}" Padding="15,8" CornerRadius="6"
+                                    FontSize="{DynamicResource ButtonFontSize}" HeightRequest="{DynamicResource ButtonHeight}">
+                                <Button.Triggers>
+                                    <DataTrigger TargetType="Button" Binding="{Binding DetailPanelSize}" Value="크게">
                                         <Setter Property="BackgroundColor" Value="{StaticResource PrimaryCTA}" />
                                     </DataTrigger>
                                 </Button.Triggers>
@@ -381,7 +643,7 @@
                         </HorizontalStackLayout>
                         <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,*" ColumnSpacing="10">
                             <Label Grid.Column="0" Text="현재:" Style="{StaticResource CaptionText}" TextColor="{StaticResource TextLightGray}" VerticalOptions="Center" />
-                            <Frame Grid.Column="1" WidthRequest="30" HeightRequest="30" CornerRadius="6" Padding="0" HasShadow="False" BackgroundColor="#60A5FA" />
+                            <Frame Grid.Column="1" WidthRequest="30" HeightRequest="30" CornerRadius="6" Padding="0" HasShadow="False" BackgroundColor="{Binding SavedCircleColor}" />
                             <Label Grid.Column="2" Text="→ 미리보기:" Style="{StaticResource CaptionText}" TextColor="{StaticResource TextLightGray}" VerticalOptions="Center" Margin="10,0,0,0" />
                             <Frame Grid.Column="3" WidthRequest="30" HeightRequest="30" CornerRadius="6" Padding="0" HasShadow="False" BackgroundColor="{Binding CircleColor}" />
                             <Label Grid.Column="4" Text="{Binding CircleColor}" Style="{StaticResource Body2}" TextColor="{StaticResource AccentSecondary}" VerticalOptions="Center" />
@@ -451,7 +713,8 @@
                         TextColor="{StaticResource TextWhite}"
                         CornerRadius="8"
                         Padding="20,15"
-                        FontSize="16"
+                        FontSize="{DynamicResource ButtonFontSize}"
+                        HeightRequest="{DynamicResource ButtonHeight}"
                         FontAttributes="Bold" />
                     
                     <Button 
@@ -463,7 +726,8 @@
                         BorderWidth="1"
                         CornerRadius="8"
                         Padding="20,15"
-                        FontSize="16" />
+                        FontSize="{DynamicResource ButtonFontSize}"
+                        HeightRequest="{DynamicResource ButtonHeight}" />
                 </VerticalStackLayout>
             </Frame>
 

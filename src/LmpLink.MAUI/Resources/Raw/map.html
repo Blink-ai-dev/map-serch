@@ -30,6 +30,24 @@
         let highlightedMarker = null; // Currently highlighted marker
         let openInfoWindows = []; // Track all open info windows
         
+        // Map styling settings (default values, can be overridden by applyMapSettings)
+        let mapSettings = {
+            userMarkerColor: '#60A5FA',
+            assistantMarkerColor: '#FB923C',
+            markerSize: 'Medium', // Small=12px, Medium=16px, Large=20px
+            userBorderWidth: 2,
+            assistantBorderWidth: 2,
+            userShape: 'Circle', // Circle, Square, Diamond
+            assistantShape: 'Square',
+            highlightColor: '#FFFFFF',
+            highlightBorderWidth: 3,
+            highlightSizeMultiplier: 2.0,
+            circleColor: '#60A5FA',
+            circleOpacity: 0.3,
+            circleBorderWidth: 2,
+            uiScale: 1.0
+        };
+        
         // Auth failure handler
         window.navermap_authFailure = function() {
             alert('네이버 지도 인증 실패!\n\n콘솔에서 Web 서비스 URL 등록 확인:\n- file:///\n- http://localhost\n\n현재 URL: ' + window.location.href);
@@ -84,15 +102,23 @@
                 const position = new naver.maps.LatLng(lat, lng);
                 const isUser = type === 'user';
                 
+                // Get size based on markerSize setting and uiScale
+                const sizeMap = { 'Small': 12, 'Medium': 16, 'Large': 20 };
+                const size = (sizeMap[mapSettings.markerSize] || 16) * mapSettings.uiScale;
+                
+                const color = isUser ? mapSettings.userMarkerColor : mapSettings.assistantMarkerColor;
+                const borderWidth = isUser ? mapSettings.userBorderWidth : mapSettings.assistantBorderWidth;
+                const shape = isUser ? mapSettings.userShape : mapSettings.assistantShape;
+                
+                const markerHtml = createMarkerHtml(color, size, borderWidth, shape, false);
+                
                 const marker = new naver.maps.Marker({
                     position: position,
                     map: map,
                     title: name,
                     icon: {
-                        content: isUser 
-                            ? '<div class="marker-default" style="width:16px;height:16px;border-radius:50%;background:#3B82F6;border:2px solid white;transition:all 0.3s;"></div>'
-                            : '<div class="marker-default" style="width:16px;height:16px;background:#F97316;border:2px solid white;transition:all 0.3s;"></div>',
-                        anchor: new naver.maps.Point(8, 8)
+                        content: markerHtml,
+                        anchor: new naver.maps.Point(size / 2, size / 2)
                     }
                 });
                 
@@ -103,23 +129,24 @@
                 marker._personAddress = address;
                 
                 // Info window with same transparency as radius overlay (#B0000000 = 69% opacity)
+                const tooltipScale = mapSettings.uiScale || 1.0;
                 const infoWindow = new naver.maps.InfoWindow({
                     content: `<div style="
-                        padding: 12px 16px;
-                        min-width: 160px;
+                        padding: ${12 * tooltipScale}px ${16 * tooltipScale}px;
+                        min-width: ${160 * tooltipScale}px;
                         background: rgba(0, 0, 0, 0.69);
-                        border-radius: 8px;
+                        border-radius: ${8 * tooltipScale}px;
                         border: 1px solid rgba(255, 255, 255, 0.1);
                     ">
                         <h4 style="
-                            margin: 0 0 6px 0;
+                            margin: 0 0 ${6 * tooltipScale}px 0;
                             color: white;
-                            font-size: 15px;
+                            font-size: ${15 * tooltipScale}px;
                             font-weight: bold;
                         ">${name}</h4>
                         <p style="
                             margin: 0;
-                            font-size: 13px;
+                            font-size: ${13 * tooltipScale}px;
                             color: #DDDDDD;
                             line-height: 1.4;
                         ">${address || '주소 정보 없음'}</p>
@@ -127,7 +154,7 @@
                     borderWidth: 0,
                     backgroundColor: 'transparent',
                     anchorSize: new naver.maps.Size(0, 0),
-                    pixelOffset: new naver.maps.Point(0, -10)
+                    pixelOffset: new naver.maps.Point(0, -10 * tooltipScale)
                 });
                 
                 // Store info window reference
@@ -154,6 +181,33 @@
                 console.error('❌ Add marker failed:', error);
                 return false;
             }
+        }
+        
+        // Create marker HTML with shape support
+        function createMarkerHtml(color, size, borderWidth, shape, isHighlight) {
+            const borderColor = isHighlight ? mapSettings.highlightColor : 'white';
+            const actualBorderWidth = isHighlight ? mapSettings.highlightBorderWidth : borderWidth;
+            const shadowSize = isHighlight ? '20px' : '0';
+            
+            let shapeStyle = '';
+            switch (shape) {
+                case 'Circle':
+                    shapeStyle = 'border-radius: 50%;';
+                    break;
+                case 'Square':
+                    shapeStyle = 'border-radius: 3px;';
+                    break;
+                case 'Diamond':
+                    shapeStyle = 'transform: rotate(45deg); border-radius: 3px;';
+                    break;
+                default:
+                    shapeStyle = 'border-radius: 50%;';
+            }
+            
+            const animation = isHighlight ? 'animation: bounce 0.6s ease-in-out;' : '';
+            
+            return `<div style="width:${size}px; height:${size}px; background:${color}; border:${actualBorderWidth}px solid ${borderColor}; ${shapeStyle} box-shadow:0 0 ${shadowSize} ${color}; transition:all 0.3s; ${animation}"></div>
+                    ${isHighlight ? '<style>@keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }</style>' : ''}`;
         }
         
         // Add multiple markers
@@ -188,11 +242,11 @@
                     map: map,
                     center: center,
                     radius: radiusMeters,
-                    fillColor: '#3B82F6',
-                    fillOpacity: 0.2,
-                    strokeColor: '#3B82F6',
+                    fillColor: mapSettings.circleColor,
+                    fillOpacity: mapSettings.circleOpacity,
+                    strokeColor: mapSettings.circleColor,
                     strokeOpacity: 0.8,
-                    strokeWeight: 2
+                    strokeWeight: mapSettings.circleBorderWidth
                 });
                 
                 console.log(`Circle drawn: ${radiusKm}km`);
@@ -272,27 +326,36 @@
                     return false;
                 }
                 
+                // Get size based on markerSize setting
+                const sizeMap = { 'Small': 12, 'Medium': 16, 'Large': 20 };
+                const baseSize = (sizeMap[mapSettings.markerSize] || 16) * mapSettings.uiScale;
+                
                 // Reset previous highlighted marker
                 if (highlightedMarker && highlightedMarker !== marker) {
                     const prevType = highlightedMarker._personType;
                     const prevIsUser = prevType === 'user';
+                    const prevColor = prevIsUser ? mapSettings.userMarkerColor : mapSettings.assistantMarkerColor;
+                    const prevBorderWidth = prevIsUser ? mapSettings.userBorderWidth : mapSettings.assistantBorderWidth;
+                    const prevShape = prevIsUser ? mapSettings.userShape : mapSettings.assistantShape;
+                    
+                    const prevMarkerHtml = createMarkerHtml(prevColor, baseSize, prevBorderWidth, prevShape, false);
                     highlightedMarker.setIcon({
-                        content: prevIsUser 
-                            ? '<div style="width:16px;height:16px;border-radius:50%;background:#3B82F6;border:2px solid white;transition:all 0.3s;"></div>'
-                            : '<div style="width:16px;height:16px;background:#F97316;border:2px solid white;transition:all 0.3s;"></div>',
-                        anchor: new naver.maps.Point(8, 8)
+                        content: prevMarkerHtml,
+                        anchor: new naver.maps.Point(baseSize / 2, baseSize / 2)
                     });
                 }
                 
-                // Highlight current marker (크기 2배, 색상 밝게, 진동 애니메이션)
+                // Highlight current marker
                 const isUser = marker._personType === 'user';
+                const color = isUser ? mapSettings.userMarkerColor : mapSettings.assistantMarkerColor;
+                const borderWidth = isUser ? mapSettings.userBorderWidth : mapSettings.assistantBorderWidth;
+                const shape = isUser ? mapSettings.userShape : mapSettings.assistantShape;
+                const highlightSize = Math.round(baseSize * mapSettings.highlightSizeMultiplier);
+                
+                const highlightHtml = createMarkerHtml(lightenColor(color, 20), highlightSize, borderWidth, shape, true);
                 marker.setIcon({
-                    content: isUser 
-                        ? `<div style="width:32px;height:32px;border-radius:50%;background:#60A5FA;border:3px solid white;box-shadow:0 0 20px rgba(59,130,246,0.8);animation:bounce 0.6s ease-in-out;"></div>
-                           <style>@keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }</style>`
-                        : `<div style="width:32px;height:32px;background:#FB923C;border:3px solid white;box-shadow:0 0 20px rgba(249,115,22,0.8);animation:bounce 0.6s ease-in-out;"></div>
-                           <style>@keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }</style>`,
-                    anchor: new naver.maps.Point(16, 16)
+                    content: highlightHtml,
+                    anchor: new naver.maps.Point(highlightSize / 2, highlightSize / 2)
                 });
                 
                 highlightedMarker = marker;
@@ -355,6 +418,98 @@
                 console.error('Get visible marker count failed:', error);
                 return JSON.stringify({ users: 0, assistants: 0 });
             }
+        }
+        
+        // Apply map styling settings
+        function applyMapSettings(userMarkerColor, assistantMarkerColor, markerSize, userBorderWidth, assistantBorderWidth, userShape, assistantShape, highlightColor, highlightBorderWidth, highlightSizeMultiplier, circleColor, circleOpacity, circleBorderWidth, uiScale) {
+            try {
+                console.log(`Applying map settings: User=${userMarkerColor}, Assistant=${assistantMarkerColor}, Size=${markerSize}, Circle=${circleColor}, Scale=${uiScale}`);
+                
+                // Update settings
+                mapSettings.userMarkerColor = userMarkerColor;
+                mapSettings.assistantMarkerColor = assistantMarkerColor;
+                mapSettings.markerSize = markerSize;
+                mapSettings.userBorderWidth = userBorderWidth;
+                mapSettings.assistantBorderWidth = assistantBorderWidth;
+                mapSettings.userShape = userShape;
+                mapSettings.assistantShape = assistantShape;
+                mapSettings.highlightColor = highlightColor;
+                mapSettings.highlightBorderWidth = highlightBorderWidth;
+                mapSettings.highlightSizeMultiplier = highlightSizeMultiplier;
+                mapSettings.circleColor = circleColor;
+                mapSettings.circleOpacity = circleOpacity;
+                mapSettings.circleBorderWidth = circleBorderWidth;
+                mapSettings.uiScale = uiScale || 1.0;
+                
+                // Get size based on markerSize setting
+                const sizeMap = { 'Small': 12, 'Medium': 16, 'Large': 20 };
+                const baseSize = (sizeMap[markerSize] || 16) * mapSettings.uiScale;
+                
+                // Redraw all markers with new settings
+                Object.values(markers).forEach(marker => {
+                    const isUser = marker._personType === 'user';
+                    const isHighlighted = marker === highlightedMarker;
+                    
+                    const color = isUser ? userMarkerColor : assistantMarkerColor;
+                    const borderWidth = isUser ? userBorderWidth : assistantBorderWidth;
+                    const shape = isUser ? userShape : assistantShape;
+                    
+                    if (isHighlighted) {
+                        // Highlighted marker (larger size)
+                        const highlightSize = Math.round(baseSize * highlightSizeMultiplier);
+                        const markerHtml = createMarkerHtml(lightenColor(color, 20), highlightSize, borderWidth, shape, true);
+                        marker.setIcon({
+                            content: markerHtml,
+                            anchor: new naver.maps.Point(highlightSize / 2, highlightSize / 2)
+                        });
+                    } else {
+                        // Normal marker
+                        const markerHtml = createMarkerHtml(color, baseSize, borderWidth, shape, false);
+                        marker.setIcon({
+                            content: markerHtml,
+                            anchor: new naver.maps.Point(baseSize / 2, baseSize / 2)
+                        });
+                    }
+                });
+                
+                // Redraw circle with new style
+                if (currentCircle) {
+                    currentCircle.setOptions({
+                        fillColor: circleColor,
+                        fillOpacity: circleOpacity,
+                        strokeColor: circleColor,
+                        strokeWeight: circleBorderWidth
+                    });
+                }
+                
+                console.log('✅ Map settings applied successfully');
+                return true;
+            } catch (error) {
+                console.error('❌ Apply map settings failed:', error);
+                return false;
+            }
+        }
+        
+        // Helper: Lighten hex color by percentage
+        function lightenColor(hex, percent) {
+            // Remove # if present
+            hex = hex.replace('#', '');
+            
+            // Convert to RGB
+            let r = parseInt(hex.substring(0, 2), 16);
+            let g = parseInt(hex.substring(2, 4), 16);
+            let b = parseInt(hex.substring(4, 6), 16);
+            
+            // Lighten
+            r = Math.min(255, Math.floor(r + (255 - r) * percent / 100));
+            g = Math.min(255, Math.floor(g + (255 - g) * percent / 100));
+            b = Math.min(255, Math.floor(b + (255 - b) * percent / 100));
+            
+            // Convert back to hex
+            return '#' + 
+                r.toString(16).padStart(2, '0') + 
+                g.toString(16).padStart(2, '0') + 
+                b.toString(16).padStart(2, '0');
         }
         
         // Initialize on page load

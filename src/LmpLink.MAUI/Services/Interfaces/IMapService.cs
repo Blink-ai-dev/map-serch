@@ -87,4 +87,37 @@ public interface IMapService
     /// </summary>
     /// <returns>Tuple of (userCount, assistantCount)</returns>
     Task<(int users, int assistants)> GetVisibleMarkerCountAsync();
+
+    /// <summary>
+    /// Apply map styling settings (marker colors, circle style).
+    /// </summary>
+    /// <param name="userMarkerColor">User marker color (hex)</param>
+    /// <param name="assistantMarkerColor">Assistant marker color (hex)</param>
+    /// <param name="markerSize">Marker size (Small/Medium/Large)</param>
+    /// <param name="userBorderWidth">User marker border width (px)</param>
+    /// <param name="assistantBorderWidth">Assistant marker border width (px)</param>
+    /// <param name="userShape">User marker shape (Circle/Square/Diamond)</param>
+    /// <param name="assistantShape">Assistant marker shape (Circle/Square/Diamond)</param>
+    /// <param name="highlightColor">Highlight border color (hex)</param>
+    /// <param name="highlightBorderWidth">Highlight border width (px)</param>
+    /// <param name="highlightSizeMultiplier">Highlight size multiplier (1.5-3.0x)</param>
+    /// <param name="circleColor">Circle fill/stroke color (hex)</param>
+    /// <param name="circleOpacity">Circle fill opacity (0.0-1.0)</param>
+    /// <param name="circleBorderWidth">Circle border width (px)</param>
+    /// <param name="uiScale">UI scale factor (0.8-1.5)</param>
+    Task ApplyMapSettingsAsync(
+        string userMarkerColor, 
+        string assistantMarkerColor, 
+        string markerSize,
+        int userBorderWidth,
+        int assistantBorderWidth,
+        string userShape,
+        string assistantShape,
+        string highlightColor,
+        int highlightBorderWidth,
+        double highlightSizeMultiplier,
+        string circleColor, 
+        double circleOpacity, 
+        int circleBorderWidth,
+        double uiScale);
 }

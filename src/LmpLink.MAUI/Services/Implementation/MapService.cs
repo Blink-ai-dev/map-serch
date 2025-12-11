@@ -253,6 +253,38 @@ public class MapService : IMapService
         }
     }
 
+    /// <inheritdoc />
+    public async Task ApplyMapSettingsAsync(
+        string userMarkerColor, 
+        string assistantMarkerColor, 
+        string markerSize,
+        int userBorderWidth,
+        int assistantBorderWidth,
+        string userShape,
+        string assistantShape,
+        string highlightColor,
+        int highlightBorderWidth,
+        double highlightSizeMultiplier,
+        string circleColor, 
+        double circleOpacity, 
+        int circleBorderWidth,
+        double uiScale)
+    {
+        ThrowIfWebViewNotSet();
+        ThrowIfMapNotInitialized();
+
+        try
+        {
+            var script = $"window.applyMapSettings('{userMarkerColor}', '{assistantMarkerColor}', '{markerSize}', {userBorderWidth}, {assistantBorderWidth}, '{userShape}', '{assistantShape}', '{highlightColor}', {highlightBorderWidth}, {highlightSizeMultiplier}, '{circleColor}', {circleOpacity}, {circleBorderWidth}, {uiScale});";
+            await EvaluateJavaScriptAsync(script);
+            MauiProgram.Log($"[MapService] Map settings applied: UserMarker={userMarkerColor}, Size={markerSize}, Circle={circleColor}");
+        }
+        catch (Exception ex)
+        {
+            throw new InvalidOperationException($"Failed to apply map settings: {ex.Message}", ex);
+        }
+    }
+
     // ===== Private Helpers =====
 
     private async Task<string> EvaluateJavaScriptAsync(string script)

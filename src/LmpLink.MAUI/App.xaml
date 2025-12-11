@@ -9,7 +9,13 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Resources/Styles/Colors.xaml" />
                 <ResourceDictionary Source="Resources/Styles/Styles.xaml" />
+                <ResourceDictionary Source="Resources/Styles/UiScale.xaml" />
             </ResourceDictionary.MergedDictionaries>
+
+            <!-- Dynamic UI Resources (Updated by App.cs) -->
+            <x:Double x:Key="InfoOverlayScale">1.0</x:Double>
+            <x:Double x:Key="TooltipScale">1.0</x:Double>
+            <x:Double x:Key="DetailPanelScale">1.0</x:Double>
 
             <!-- Converters -->
             <converters:InvertedBoolConverter x:Key="InvertedBoolConverter" />

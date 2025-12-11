@@ -1,5 +1,8 @@
 #nullable enable
 
+using CommunityToolkit.Mvvm.Messaging;
+using LmpLink.MAUI.Messages;
+using LmpLink.MAUI.Services.Implementation;
 using LmpLink.MAUI.ViewModels.Base;
 
 namespace LmpLink.MAUI.ViewModels;
@@ -29,6 +32,7 @@ public partial class MapViewModel : BaseViewModel
     private readonly IMockDataService _mockDataService;
     private readonly ILocationService _locationService;
     private readonly ISupabaseService _supabaseService;
+    private readonly ScaleService _scaleService;
 
     // --- Observable Properties ---
 
@@ -77,6 +81,51 @@ public partial class MapViewModel : BaseViewModel
     [ObservableProperty]
     private bool _isDetailPanelVisible; // Show/hide panel
 
+    // --- Map Styling Settings (from Preferences) ---
+    
+    [ObservableProperty]
+    private string _userMarkerColor = "#60A5FA"; // Blue
+
+    [ObservableProperty]
+    private string _assistantMarkerColor = "#FB923C"; // Orange
+
+    [ObservableProperty]
+    private string _markerSize = "Medium";
+
+    [ObservableProperty]
+    private int _userMarkerBorderWidth = 2;
+
+    [ObservableProperty]
+    private int _assistantMarkerBorderWidth = 2;
+
+    [ObservableProperty]
+    private string _userMarkerShape = "Circle";
+
+    [ObservableProperty]
+    private string _assistantMarkerShape = "Square";
+
+    [ObservableProperty]
+    private string _highlightColor = "#FFFFFF";
+
+    [ObservableProperty]
+    private int _highlightBorderWidth = 3;
+
+    [ObservableProperty]
+    private double _highlightSizeMultiplier = 2.0;
+
+    [ObservableProperty]
+    private string _circleColor = "#60A5FA"; // Blue
+
+    [ObservableProperty]
+    private double _circleOpacity = 0.3;
+
+    [ObservableProperty]
+    private int _circleBorderWidth = 2;
+
+    // UI Scale
+    [ObservableProperty]
+    private double _uiScale = 1.0; // 0.8 ~ 1.5
+
     // --- Computed Display Properties ---
     // These switch based on current mode for proper list display
 
@@ -100,14 +149,62 @@ public partial class MapViewModel : BaseViewModel
     public MapViewModel(
         IMockDataService mockDataService, 
         ILocationService locationService,
-        ISupabaseService supabaseService)
+        ISupabaseService supabaseService,
+        ScaleService scaleService)
     {
         _mockDataService = mockDataService;
         _locationService = locationService;
         _supabaseService = supabaseService;
+        _scaleService = scaleService;
+        UiScale = _scaleService.CurrentScale;
+        
+        // Load settings from Preferences
+        LoadSettings();
+        
+        // Subscribe to settings changes
+        WeakReferenceMessenger.Default.Register<SettingsChangedMessage>(this, (r, m) =>
+        {
+            MauiProgram.Log("[MapViewModel] SettingsChangedMessage received, reloading settings");
+            LoadSettings();
+        });
+
+        _scaleService.ScaleChanged += OnScaleChanged;
     }
 
     // --- Commands ---
+    
+    /// <summary>
+    /// Load map styling settings from Preferences.
+    /// </summary>
+    private void LoadSettings()
+    {
+        MauiProgram.Log("[MapViewModel] LoadSettings START");
+        
+        try
+        {
+            UserMarkerColor = Preferences.Default.Get("UserMarkerColor", "#60A5FA");
+            AssistantMarkerColor = Preferences.Default.Get("AssistantMarkerColor", "#FB923C");
+            MarkerSize = Preferences.Default.Get("MarkerSize", "Medium");
+            UserMarkerBorderWidth = Preferences.Default.Get("UserMarkerBorderWidth", 2);
+            AssistantMarkerBorderWidth = Preferences.Default.Get("AssistantMarkerBorderWidth", 2);
+            UserMarkerShape = Preferences.Default.Get("UserMarkerShape", "Circle");
+            AssistantMarkerShape = Preferences.Default.Get("AssistantMarkerShape", "Square");
+            
+            HighlightColor = Preferences.Default.Get("HighlightColor", "#FFFFFF");
+            HighlightBorderWidth = Preferences.Default.Get("HighlightBorderWidth", 3);
+            HighlightSizeMultiplier = Preferences.Default.Get("HighlightSizeMultiplier", 2.0);
+            
+            CircleColor = Preferences.Default.Get("CircleColor", "#60A5FA");
+            CircleOpacity = Preferences.Default.Get("CircleOpacity", 0.3);
+            CircleBorderWidth = Preferences.Default.Get("CircleBorderWidth", 2);
+            
+            MauiProgram.Log($"[MapViewModel] Settings loaded: UserMarker={UserMarkerColor}, Circle={CircleColor}");
+        }
+        catch (Exception ex)
+        {
+            MauiProgram.Log($"[MapViewModel] LoadSettings FAILED: {ex.Message}");
+        }
+    }
 
     /// <summary>
     /// Load users and assistants from Supabase (with Mock fallback).
@@ -445,5 +542,43 @@ public partial class MapViewModel : BaseViewModel
         
         // Close panel after navigation
         CloseDetailPanel();
+    }
+
+    /// <summary>
+    /// Increase UI scale.
+    /// </summary>
+    [RelayCommand]
+    private void IncreaseScale()
+    {
+        _scaleService.Increase();
+        UiScale = _scaleService.CurrentScale;
+        MauiProgram.Log($"[MapViewModel] UI Scale increased to: {UiScale:F1}");
+    }
+
+    /// <summary>
+    /// Decrease UI scale.
+    /// </summary>
+    [RelayCommand]
+    private void DecreaseScale()
+    {
+        _scaleService.Decrease();
+        UiScale = _scaleService.CurrentScale;
+        MauiProgram.Log($"[MapViewModel] UI Scale decreased to: {UiScale:F1}");
+    }
+
+    /// <summary>
+    /// Reset UI scale to 100%.
+    /// </summary>
+    [RelayCommand]
+    private void ResetScale()
+    {
+        _scaleService.Reset();
+        UiScale = _scaleService.CurrentScale;
+        MauiProgram.Log("[MapViewModel] UI Scale reset to 1.0");
+    }
+
+    private void OnScaleChanged(object? sender, double scale)
+    {
+        UiScale = scale;
     }
 }
