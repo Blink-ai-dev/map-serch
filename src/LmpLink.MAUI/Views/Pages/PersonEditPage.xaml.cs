@@ -37,7 +37,8 @@ public partial class PersonEditPage : ContentPage
             MauiProgram.Log($"[PersonEditPage] Loading person ID: {personId}");
             
             await _supabaseService.InitializeAsync();
-            var person = await _supabaseService.GetPersonByIdAsync(personId);
+            var person = await _supabaseService.GetUserByIdAsync(personId)
+                         ?? await _supabaseService.GetAssistantByIdAsync(personId);
 
             if (person != null)
             {

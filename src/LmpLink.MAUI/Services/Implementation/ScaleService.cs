@@ -19,16 +19,16 @@ public class ScaleService
     private const double Step = 0.1;
 
     // Base UI sizes
-    private const double BaseTitleFontSize = 22;
+    private const double BaseTitleFontSize = 20;
     private const double BaseButtonFontSize = 16;
-    private const double BaseButtonHeight = 44;
-    private const double BaseTabFontSize = 14;
-    private const double BaseTabHeight = 48;
+    private const double BaseButtonHeight = 48;
+    private const double BaseTabFontSize = 15;
+    private const double BaseTabHeight = 56;
     private const double BaseHeaderFontSize = 20;
     private const double BaseBodyFontSize = 14;
     private static readonly Thickness BaseCardPadding = new(12, 8);
-    private const double BaseTitleBarHeight = 56;
-    private static readonly Thickness BaseTitleBarPadding = new(12, 8);
+    private const double BaseTitleBarHeight = 68;
+    private static readonly Thickness BaseTitleBarPadding = new(14, 10);
     private static readonly Thickness BaseTabPadding = new(10, 6);
 
     private bool _baseSizeCached;

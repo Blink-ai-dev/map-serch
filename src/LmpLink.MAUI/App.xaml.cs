@@ -8,6 +8,9 @@ using LmpLink.MAUI.Services.Implementation;
 
 public partial class App : Application
 {
+    private const int DefaultWidth = 1280;
+    private const int DefaultHeight = 720;
+
     public App()
     {
         MauiProgram.Log("=== App Constructor START ===");
@@ -162,14 +165,15 @@ public partial class App : Application
             var window = new Window(shell)
             {
                 Title = "LMP-Link MVP",
-                Width = 1280,
-                Height = 720
+                Width = DefaultWidth,
+                Height = DefaultHeight
             };
 
             try
             {
                 var scaleService = IPlatformApplication.Current?.Services?.GetService<ScaleService>();
                 scaleService?.Initialize(window);
+                CenterWindow(window);
             }
             catch (Exception ex)
             {
@@ -184,6 +188,36 @@ public partial class App : Application
             MauiProgram.Log($"!!! App.CreateWindow FAILED: {ex.Message}");
             MauiProgram.Log(ex.StackTrace ?? "");
             throw;
+        }
+    }
+
+    /// <summary>
+    /// Center window on primary work area to avoid off-screen launch.
+    /// </summary>
+    private static void CenterWindow(Window window)
+    {
+        var appWindow = TryGetAppWindow(window);
+        if (appWindow == null)
+        {
+            return;
+        }
+
+        try
+        {
+            var displayArea = DisplayArea.GetFromWindowId(appWindow.Id, DisplayAreaFallback.Primary);
+            var workArea = displayArea.WorkArea;
+
+            int targetWidth = (int)(window.Width > 0 ? window.Width : DefaultWidth);
+            int targetHeight = (int)(window.Height > 0 ? window.Height : DefaultHeight);
+
+            var x = workArea.X + Math.Max(0, (workArea.Width - targetWidth) / 2);
+            var y = workArea.Y + Math.Max(0, (workArea.Height - targetHeight) / 2);
+
+            appWindow.Move(new Windows.Graphics.PointInt32(x, y));
+        }
+        catch (Exception ex)
+        {
+            MauiProgram.Log($"[App] CenterWindow FAILED: {ex.Message}");
         }
     }
 }

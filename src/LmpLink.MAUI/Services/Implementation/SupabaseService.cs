@@ -2,6 +2,7 @@ using Supabase;
 using Postgrest.Attributes;
 using Postgrest.Models;
 using Microsoft.Extensions.Configuration;
+using LmpLink.MAUI.Models;
 
 namespace LmpLink.MAUI.Services.Implementation;
 
@@ -52,30 +53,6 @@ public class SupabaseService : ISupabaseService
         }
     }
 
-    public async Task<List<Person>> GetPersonsAsync()
-    {
-        if (_client == null)
-        {
-            await InitializeAsync();
-        }
-
-        try
-        {
-            MauiProgram.Log("[SupabaseService] Fetching all persons...");
-
-            var response = await _client!.From<PersonDto>().Get();
-            var persons = response.Models.Select(MapToPerson).ToList();
-
-            MauiProgram.Log($"[SupabaseService] Fetched {persons.Count} persons");
-            return persons;
-        }
-        catch (Exception ex)
-        {
-            MauiProgram.Log($"[SupabaseService] GetPersonsAsync failed: {ex.Message}");
-            throw;
-        }
-    }
-
     public async Task<List<Person>> GetUsersAsync()
     {
         if (_client == null)
@@ -91,7 +68,7 @@ public class SupabaseService : ISupabaseService
                 .Where(p => p.Type == "user")
                 .Get();
 
-            var users = response.Models.Select(MapToPerson).ToList();
+            var users = response.Models.Select(MapPersonDtoToPerson).ToList();
 
             MauiProgram.Log($"[SupabaseService] Fetched {users.Count} users");
             return users;
@@ -118,7 +95,7 @@ public class SupabaseService : ISupabaseService
                 .Where(p => p.Type == "assistant")
                 .Get();
 
-            var assistants = response.Models.Select(MapToPerson).ToList();
+            var assistants = response.Models.Select(MapPersonDtoToPerson).ToList();
 
             MauiProgram.Log($"[SupabaseService] Fetched {assistants.Count} assistants");
             return assistants;
@@ -130,7 +107,7 @@ public class SupabaseService : ISupabaseService
         }
     }
 
-    public async Task<Person?> GetPersonByIdAsync(int id)
+    public async Task<Person?> GetUserByIdAsync(int id)
     {
         if (_client == null)
         {
@@ -139,28 +116,28 @@ public class SupabaseService : ISupabaseService
 
         try
         {
-            MauiProgram.Log($"[SupabaseService] Fetching person ID {id}...");
+            MauiProgram.Log($"[SupabaseService] Fetching user ID {id}...");
 
             var response = await _client!.From<PersonDto>()
-                .Where(p => p.Id == id)
+                .Where(p => p.Id == id && p.Type == "user")
                 .Single();
 
             if (response == null)
             {
-                MauiProgram.Log($"[SupabaseService] Person ID {id} not found");
+                MauiProgram.Log($"[SupabaseService] User ID {id} not found");
                 return null;
             }
 
-            return MapToPerson(response);
+            return MapPersonDtoToPerson(response);
         }
         catch (Exception ex)
         {
-            MauiProgram.Log($"[SupabaseService] GetPersonByIdAsync failed: {ex.Message}");
+            MauiProgram.Log($"[SupabaseService] GetUserByIdAsync failed: {ex.Message}");
             return null;
         }
     }
 
-    public async Task<Person> CreatePersonAsync(Person person)
+    public async Task<Person?> GetAssistantByIdAsync(int id)
     {
         if (_client == null)
         {
@@ -169,30 +146,60 @@ public class SupabaseService : ISupabaseService
 
         try
         {
-            MauiProgram.Log($"[SupabaseService] Creating person: {person.Name}");
+            MauiProgram.Log($"[SupabaseService] Fetching assistant ID {id}...");
 
-            var dto = MapToDto(person);
-            dto.Id = 0; // Ensure ID is 0 for new records
-            
+            var response = await _client!.From<PersonDto>()
+                .Where(p => p.Id == id && p.Type == "assistant")
+                .Single();
+
+            if (response == null)
+            {
+                MauiProgram.Log($"[SupabaseService] Assistant ID {id} not found");
+                return null;
+            }
+
+            return MapPersonDtoToPerson(response);
+        }
+        catch (Exception ex)
+        {
+            MauiProgram.Log($"[SupabaseService] GetAssistantByIdAsync failed: {ex.Message}");
+            return null;
+        }
+    }
+
+    public async Task<Person> CreateUserAsync(Person person)
+    {
+        if (_client == null)
+        {
+            await InitializeAsync();
+        }
+
+        try
+        {
+            MauiProgram.Log($"[SupabaseService] Creating user: {person.Name}");
+
+            var dto = MapToPersonDto(person, "user");
+            dto.Id = 0;
+
             var response = await _client!.From<PersonDto>().Insert(dto);
 
             if (response?.Models?.FirstOrDefault() == null)
             {
-                throw new InvalidOperationException("Failed to create person: No response from server");
+                throw new InvalidOperationException("Failed to create user: No response from server");
             }
 
-            var createdPerson = MapToPerson(response.Models.First());
-            MauiProgram.Log($"[SupabaseService] Created person ID {createdPerson.Id}");
-            return createdPerson;
+            var created = MapPersonDtoToPerson(response.Models.First());
+            MauiProgram.Log($"[SupabaseService] Created user ID {created.Id}");
+            return created;
         }
         catch (Exception ex)
         {
-            MauiProgram.Log($"[SupabaseService] CreatePersonAsync failed: {ex.Message}");
+            MauiProgram.Log($"[SupabaseService] CreateUserAsync failed: {ex.Message}");
             throw;
         }
     }
 
-    public async Task<Person> UpdatePersonAsync(Person person)
+    public async Task<Person> UpdateUserAsync(Person person)
     {
         if (_client == null)
         {
@@ -201,29 +208,28 @@ public class SupabaseService : ISupabaseService
 
         try
         {
-            MauiProgram.Log($"[SupabaseService] Updating person ID {person.Id}: {person.Name}");
+            MauiProgram.Log($"[SupabaseService] Updating user ID {person.Id}: {person.Name}");
 
-            var dto = MapToDto(person);
-            
+            var dto = MapToPersonDto(person, "user");
             var response = await _client!.From<PersonDto>().Update(dto);
 
             if (response?.Models?.FirstOrDefault() == null)
             {
-                throw new InvalidOperationException("Failed to update person: No response from server");
+                throw new InvalidOperationException("Failed to update user: No response from server");
             }
 
-            var updatedPerson = MapToPerson(response.Models.First());
-            MauiProgram.Log($"[SupabaseService] Updated person ID {updatedPerson.Id}");
-            return updatedPerson;
+            var updated = MapPersonDtoToPerson(response.Models.First());
+            MauiProgram.Log($"[SupabaseService] Updated user ID {updated.Id}");
+            return updated;
         }
         catch (Exception ex)
         {
-            MauiProgram.Log($"[SupabaseService] UpdatePersonAsync failed: {ex.Message}");
+            MauiProgram.Log($"[SupabaseService] UpdateUserAsync failed: {ex.Message}");
             throw;
         }
     }
 
-    public async Task<Person?> UpsertPersonAsync(Person person)
+    public async Task<Person> CreateAssistantAsync(Person person)
     {
         if (_client == null)
         {
@@ -232,28 +238,30 @@ public class SupabaseService : ISupabaseService
 
         try
         {
-            MauiProgram.Log($"[SupabaseService] Upserting person ID {person.Id}...");
+            MauiProgram.Log($"[SupabaseService] Creating assistant: {person.Name}");
 
-            var dto = MapToDto(person);
-            var response = await _client!.From<PersonDto>().Upsert(dto);
+            var dto = MapToPersonDto(person, "assistant");
+            dto.Id = 0;
+
+            var response = await _client!.From<PersonDto>().Insert(dto);
 
             if (response?.Models?.FirstOrDefault() == null)
             {
-                MauiProgram.Log("[SupabaseService] Upsert failed");
-                return null;
+                throw new InvalidOperationException("Failed to create assistant: No response from server");
             }
 
-            MauiProgram.Log($"[SupabaseService] Upserted person ID {person.Id}");
-            return MapToPerson(response.Models.First());
+            var created = MapPersonDtoToPerson(response.Models.First());
+            MauiProgram.Log($"[SupabaseService] Created assistant ID {created.Id}");
+            return created;
         }
         catch (Exception ex)
         {
-            MauiProgram.Log($"[SupabaseService] UpsertPersonAsync failed: {ex.Message}");
+            MauiProgram.Log($"[SupabaseService] CreateAssistantAsync failed: {ex.Message}");
             throw;
         }
     }
 
-    public async Task<bool> DeletePersonAsync(int id)
+    public async Task<Person> UpdateAssistantAsync(Person person)
     {
         if (_client == null)
         {
@@ -262,37 +270,94 @@ public class SupabaseService : ISupabaseService
 
         try
         {
-            MauiProgram.Log($"[SupabaseService] Deleting person ID {id}...");
+            MauiProgram.Log($"[SupabaseService] Updating assistant ID {person.Id}: {person.Name}");
+
+            var dto = MapToPersonDto(person, "assistant");
+            var response = await _client!.From<PersonDto>().Update(dto);
+
+            if (response?.Models?.FirstOrDefault() == null)
+            {
+                throw new InvalidOperationException("Failed to update assistant: No response from server");
+            }
+
+            var updated = MapPersonDtoToPerson(response.Models.First());
+            MauiProgram.Log($"[SupabaseService] Updated assistant ID {updated.Id}");
+            return updated;
+        }
+        catch (Exception ex)
+        {
+            MauiProgram.Log($"[SupabaseService] UpdateAssistantAsync failed: {ex.Message}");
+            throw;
+        }
+    }
+
+    public async Task<bool> DeleteUserAsync(int id)
+    {
+        if (_client == null)
+        {
+            await InitializeAsync();
+        }
+
+        try
+        {
+            MauiProgram.Log($"[SupabaseService] Deleting user ID {id}...");
 
             await _client!.From<PersonDto>()
-                .Where(p => p.Id == id)
+                .Where(p => p.Id == id && p.Type == "user")
                 .Delete();
 
-            MauiProgram.Log($"[SupabaseService] Deleted person ID {id}");
+            MauiProgram.Log($"[SupabaseService] Deleted user ID {id}");
             return true;
         }
         catch (Exception ex)
         {
-            MauiProgram.Log($"[SupabaseService] DeletePersonAsync failed: {ex.Message}");
+            MauiProgram.Log($"[SupabaseService] DeleteUserAsync failed: {ex.Message}");
+            return false;
+        }
+    }
+
+    public async Task<bool> DeleteAssistantAsync(int id)
+    {
+        if (_client == null)
+        {
+            await InitializeAsync();
+        }
+
+        try
+        {
+            MauiProgram.Log($"[SupabaseService] Deleting assistant ID {id}...");
+
+            await _client!.From<PersonDto>()
+                .Where(p => p.Id == id && p.Type == "assistant")
+                .Delete();
+
+            MauiProgram.Log($"[SupabaseService] Deleted assistant ID {id}");
+            return true;
+        }
+        catch (Exception ex)
+        {
+            MauiProgram.Log($"[SupabaseService] DeleteAssistantAsync failed: {ex.Message}");
             return false;
         }
     }
 
     // ========== Mapping Methods ==========
 
-    private static Person MapToPerson(PersonDto dto)
+    private static Person MapPersonDtoToPerson(PersonDto dto)
     {
+        var personType = dto.Type == "assistant" ? PersonType.Assistant : PersonType.User;
+
         return new Person(
             Id: dto.Id,
             Name: dto.Name ?? "Unknown",
-            Type: Enum.TryParse<PersonType>(dto.Type, true, out var type) ? type : PersonType.User,
+            Type: personType,
             Latitude: dto.Latitude,
             Longitude: dto.Longitude,
             Address: dto.Address ?? "",
             Phone: dto.Phone,
             Gender: dto.Gender,
             HasVehicle: dto.HasVehicle,
-            AvailableTimeSlots: null, // TODO: Parse from JSONB
+            AvailableTimeSlots: null, // PersonDto doesn't have this field
             Experience: dto.ExperienceYears
         )
         {
@@ -300,17 +365,18 @@ public class SupabaseService : ISupabaseService
         };
     }
 
-    private static PersonDto MapToDto(Person person)
+    private static PersonDto MapToPersonDto(Person person, string type)
     {
         return new PersonDto
         {
             Id = person.Id,
             Name = person.Name,
-            Type = person.Type.ToString().ToLower(),
+            Type = type,
+            Email = null, // Not available in Person model
+            Phone = person.Phone,
+            Address = person.Address,
             Latitude = person.Latitude,
             Longitude = person.Longitude,
-            Address = person.Address,
-            Phone = person.Phone,
             Gender = person.Gender,
             HasVehicle = person.HasVehicle,
             ExperienceYears = person.Experience
@@ -318,6 +384,75 @@ public class SupabaseService : ISupabaseService
     }
 }
 
+// ========== DTOs ==========
+
+[Table("users")]
+public class UserDto : BaseModel
+{
+    [PrimaryKey("id", false)]
+    public int Id { get; set; }
+
+    [Column("name")]
+    public string? Name { get; set; }
+
+    [Column("phone")]
+    public string? Phone { get; set; }
+
+    [Column("address")]
+    public string? Address { get; set; }
+
+    [Column("latitude")]
+    public double Latitude { get; set; }
+
+    [Column("longitude")]
+    public double Longitude { get; set; }
+
+    [Column("gender")]
+    public string? Gender { get; set; }
+
+    [Column("preferred_time_slots")]
+    public string? PreferredTimeSlots { get; set; }
+
+    [Column("created_at")]
+    public DateTime? CreatedAt { get; set; }
+}
+
+[Table("assistants")]
+public class AssistantDto : BaseModel
+{
+    [PrimaryKey("id", false)]
+    public int Id { get; set; }
+
+    [Column("name")]
+    public string? Name { get; set; }
+
+    [Column("phone")]
+    public string? Phone { get; set; }
+
+    [Column("address")]
+    public string? Address { get; set; }
+
+    [Column("latitude")]
+    public double Latitude { get; set; }
+
+    [Column("longitude")]
+    public double Longitude { get; set; }
+
+    [Column("gender")]
+    public string? Gender { get; set; }
+
+    [Column("has_vehicle")]
+    public bool HasVehicle { get; set; }
+
+    [Column("experience_years")]
+    public int? ExperienceYears { get; set; }
+
+    [Column("preferred_time_slots")]
+    public string? PreferredTimeSlots { get; set; }
+
+    [Column("created_at")]
+    public DateTime? CreatedAt { get; set; }
+}
 /// <summary>
 /// Supabase persons table DTO
 /// </summary>

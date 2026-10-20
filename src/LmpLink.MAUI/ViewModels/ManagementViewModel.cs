@@ -266,9 +266,16 @@ public partial class ManagementViewModel : BaseViewModel
         {
             try
             {
-                foreach (var id in ids)
+                foreach (var target in targets)
                 {
-                    await _supabaseService.DeletePersonAsync(id);
+                    var ok = target.Type == PersonType.User
+                        ? await _supabaseService.DeleteUserAsync(target.Id)
+                        : await _supabaseService.DeleteAssistantAsync(target.Id);
+
+                    if (!ok)
+                    {
+                        throw new InvalidOperationException($"삭제 실패: ID {target.Id}");
+                    }
                 }
 
                 var remaining = AllPersons.Where(p => !ids.Contains(p.Id)).ToList();

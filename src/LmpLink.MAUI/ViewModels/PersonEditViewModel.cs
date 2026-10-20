@@ -1,6 +1,7 @@
 #nullable enable
 
 using LmpLink.MAUI.ViewModels.Base;
+using LmpLink.MAUI.Models;
 using System.Globalization;
 
 namespace LmpLink.MAUI.ViewModels;
@@ -168,9 +169,6 @@ public partial class PersonEditViewModel : BaseViewModel
                 }
             }
 
-            // Create Person object
-            var personType = SelectedType == "User" ? PersonType.User : PersonType.Assistant;
-            
             try
             {
                 await _supabaseService.InitializeAsync();
@@ -179,44 +177,34 @@ public partial class PersonEditViewModel : BaseViewModel
                 {
                     // Create new person
                     MauiProgram.Log($"[PersonEditViewModel] Creating new person: {Name}");
-                    
-                    var newPerson = new Person(
-                        Id: 0, // Will be assigned by Supabase
-                        Name: Name,
-                        Type: personType,
-                        Latitude: lat,
-                        Longitude: lon,
-                        Address: Address,
-                        Phone: string.IsNullOrWhiteSpace(Phone) ? null : Phone,
-                        Gender: Gender,
-                        HasVehicle: HasVehicle,
-                        AvailableTimeSlots: null,
-                        Experience: experienceValue
-                    );
 
-                    await _supabaseService.CreatePersonAsync(newPerson);
+                    if (IsAssistant)
+                    {
+                        var newAssistant = BuildPerson(PersonType.Assistant, lat, lon, experienceValue);
+                        await _supabaseService.CreateAssistantAsync(newAssistant);
+                    }
+                    else
+                    {
+                        var newUser = BuildPerson(PersonType.User, lat, lon, null);
+                        await _supabaseService.CreateUserAsync(newUser);
+                    }
                     await Shell.Current.DisplayAlertAsync("성공", $"{Name}님이 등록되었습니다.", "확인");
                 }
                 else
                 {
                     // Update existing person
                     MauiProgram.Log($"[PersonEditViewModel] Updating person ID: {_personId}");
-                    
-                    var updatedPerson = new Person(
-                        Id: _personId.Value,
-                        Name: Name,
-                        Type: personType,
-                        Latitude: lat,
-                        Longitude: lon,
-                        Address: Address,
-                        Phone: string.IsNullOrWhiteSpace(Phone) ? null : Phone,
-                        Gender: Gender,
-                        HasVehicle: HasVehicle,
-                        AvailableTimeSlots: null,
-                        Experience: experienceValue
-                    );
 
-                    await _supabaseService.UpdatePersonAsync(updatedPerson);
+                    if (IsAssistant)
+                    {
+                        var updatedAssistant = BuildPerson(PersonType.Assistant, lat, lon, experienceValue, _personId.Value);
+                        await _supabaseService.UpdateAssistantAsync(updatedAssistant);
+                    }
+                    else
+                    {
+                        var updatedUser = BuildPerson(PersonType.User, lat, lon, null, _personId.Value);
+                        await _supabaseService.UpdateUserAsync(updatedUser);
+                    }
                     await Shell.Current.DisplayAlertAsync("성공", $"{Name}님의 정보가 수정되었습니다.", "확인");
                 }
 
@@ -247,6 +235,23 @@ public partial class PersonEditViewModel : BaseViewModel
         {
             await Shell.Current.GoToAsync("..");
         }
+    }
+
+    private Person BuildPerson(PersonType type, double lat, double lon, int? experience, int id = 0)
+    {
+        return new Person(
+            Id: id,
+            Name: Name,
+            Type: type,
+            Latitude: lat,
+            Longitude: lon,
+            Address: Address,
+            Phone: string.IsNullOrWhiteSpace(Phone) ? null : Phone,
+            Gender: Gender,
+            HasVehicle: type == PersonType.Assistant && HasVehicle,
+            AvailableTimeSlots: null,
+            Experience: type == PersonType.Assistant ? experience : null
+        );
     }
 }
 

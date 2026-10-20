@@ -1,7 +1,7 @@
 namespace LmpLink.MAUI.Services.Interfaces;
 
 /// <summary>
-/// Supabase database operations for persons (users & assistants)
+/// Supabase database operations for users & assistants (separate tables)
 /// </summary>
 public interface ISupabaseService
 {
@@ -9,11 +9,6 @@ public interface ISupabaseService
     /// Initialize Supabase client
     /// </summary>
     Task InitializeAsync();
-
-    /// <summary>
-    /// Get all persons (users + assistants)
-    /// </summary>
-    Task<List<Person>> GetPersonsAsync();
 
     /// <summary>
     /// Get users only
@@ -26,29 +21,44 @@ public interface ISupabaseService
     Task<List<Person>> GetAssistantsAsync();
 
     /// <summary>
-    /// Get person by ID
+    /// Get user by ID
     /// </summary>
-    Task<Person?> GetPersonByIdAsync(int id);
+    Task<Person?> GetUserByIdAsync(int id);
 
     /// <summary>
-    /// Create a new person
+    /// Get assistant by ID
     /// </summary>
-    Task<Person> CreatePersonAsync(Person person);
+    Task<Person?> GetAssistantByIdAsync(int id);
 
     /// <summary>
-    /// Update an existing person
+    /// Create a new user
     /// </summary>
-    Task<Person> UpdatePersonAsync(Person person);
+    Task<Person> CreateUserAsync(Person person);
 
     /// <summary>
-    /// Create or update a person (legacy method)
+    /// Update an existing user
     /// </summary>
-    Task<Person?> UpsertPersonAsync(Person person);
+    Task<Person> UpdateUserAsync(Person person);
 
     /// <summary>
-    /// Delete a person
+    /// Create a new assistant
     /// </summary>
-    Task<bool> DeletePersonAsync(int id);
+    Task<Person> CreateAssistantAsync(Person person);
+
+    /// <summary>
+    /// Update an existing assistant
+    /// </summary>
+    Task<Person> UpdateAssistantAsync(Person person);
+
+    /// <summary>
+    /// Delete a user
+    /// </summary>
+    Task<bool> DeleteUserAsync(int id);
+
+    /// <summary>
+    /// Delete an assistant
+    /// </summary>
+    Task<bool> DeleteAssistantAsync(int id);
 }
 
 
